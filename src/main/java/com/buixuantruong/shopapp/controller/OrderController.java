@@ -39,7 +39,7 @@ public class OrderController {
     @GetMapping("/{user_id}")
     public ResponseEntity<?> getOrderById(@PathVariable("user_id") long user_id) {
         try{
-            return ResponseEntity.ok("lay tt order");
+            return ResponseEntity.ok("get order information");
         }
         catch(Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
