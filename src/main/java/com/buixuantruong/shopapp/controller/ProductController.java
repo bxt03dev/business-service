@@ -1,13 +1,12 @@
 package com.buixuantruong.shopapp.controller;
 
-import com.buixuantruong.shopapp.dtos.ProductDTO;
-import com.buixuantruong.shopapp.dtos.ProductImageDTO;
-import com.buixuantruong.shopapp.models.Product;
-import com.buixuantruong.shopapp.models.ProductImage;
-import com.buixuantruong.shopapp.services.IProductService;
+import com.buixuantruong.shopapp.dto.ProductDTO;
+import com.buixuantruong.shopapp.dto.ProductImageDTO;
+import com.buixuantruong.shopapp.model.Product;
+import com.buixuantruong.shopapp.model.ProductImage;
+import com.buixuantruong.shopapp.service.IProductService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.http.HttpStatus;

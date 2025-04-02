@@ -1,6 +1,6 @@
 package com.buixuantruong.shopapp.controller;
 
-import com.buixuantruong.shopapp.dtos.OrderDTO;
+import com.buixuantruong.shopapp.dto.OrderDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;

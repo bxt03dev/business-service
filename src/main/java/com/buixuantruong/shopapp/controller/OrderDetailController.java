@@ -1,11 +1,9 @@
 package com.buixuantruong.shopapp.controller;
 
-import com.buixuantruong.shopapp.dtos.OrderDetailDTO;
+import com.buixuantruong.shopapp.dto.OrderDetailDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/order_details")
