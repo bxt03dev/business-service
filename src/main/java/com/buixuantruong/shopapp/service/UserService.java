@@ -6,7 +6,7 @@ import com.buixuantruong.shopapp.model.User;
 import org.springframework.stereotype.Service;
 
 @Service
-public interface IUserService {
+public interface  UserService {
     User createUser(UserDTO userDTO) throws DataNotFoundException;
 
     String login(String phoneNumber, String password);

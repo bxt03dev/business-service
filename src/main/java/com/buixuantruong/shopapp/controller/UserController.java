@@ -1,7 +1,8 @@
 package com.buixuantruong.shopapp.controller;
 
 import com.buixuantruong.shopapp.dto.*;
-import com.buixuantruong.shopapp.service.impl.UserService;
+import com.buixuantruong.shopapp.service.UserService;
+import com.buixuantruong.shopapp.service.impl.UserServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +18,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    UserService userService;
+    UserService userServiceImpl;
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO,
                                       BindingResult bindingResult) {
@@ -32,7 +33,7 @@ public class UserController {
             if(!userDTO.getPassword().equals(userDTO.getRetypePassword())){
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Passwords do not match");
             }
-            userService.createUser(userDTO);
+            userServiceImpl.createUser(userDTO);
             return ResponseEntity.ok().body("register successfully");
         }
         catch(Exception e){
@@ -42,7 +43,7 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
-        String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
+        String token = userServiceImpl.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
         return ResponseEntity.ok().body(token);
     }
 }

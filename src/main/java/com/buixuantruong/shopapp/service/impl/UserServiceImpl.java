@@ -6,7 +6,6 @@ import com.buixuantruong.shopapp.model.Role;
 import com.buixuantruong.shopapp.model.User;
 import com.buixuantruong.shopapp.repository.RoleRepository;
 import com.buixuantruong.shopapp.repository.UserRepository;
-import com.buixuantruong.shopapp.service.IUserService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,7 +15,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UserService implements IUserService {
+public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
     @Override

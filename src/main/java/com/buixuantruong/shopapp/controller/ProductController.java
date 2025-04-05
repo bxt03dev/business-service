@@ -4,7 +4,8 @@ import com.buixuantruong.shopapp.dto.ProductDTO;
 import com.buixuantruong.shopapp.dto.ProductImageDTO;
 import com.buixuantruong.shopapp.model.Product;
 import com.buixuantruong.shopapp.model.ProductImage;
-import com.buixuantruong.shopapp.service.IProductService;
+import com.buixuantruong.shopapp.service.ProductService;
+import com.buixuantruong.shopapp.utils.fiels.common;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -33,7 +35,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductController {
 
-    IProductService productService;
+    ProductService productService;
 
     @GetMapping("")
     public ResponseEntity<String> getAllProducts() {
@@ -71,6 +73,9 @@ public class ProductController {
         try {
             Product existingProduct = productService.getProductById(id);
             files = files == null ? new ArrayList<MultipartFile>() : files;
+            if(files.size() > common.MAXIMUM_IMAGE){
+                return ResponseEntity.badRequest().body("You can only upload up to 5 images");
+            }
             List<ProductImage> productImages = new ArrayList<>();
             for(MultipartFile file : files) {
                 if(file != null){
@@ -102,7 +107,10 @@ public class ProductController {
     }
 
     private String storeFile(MultipartFile file) throws IOException {
-        String fileName = StringUtils.cleanPath((file.getOriginalFilename()));
+        if(!isImageFile(file) || file.getOriginalFilename() == null){
+            throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported Media Type");
+        }
+        String fileName = StringUtils.cleanPath((Objects.requireNonNull(file.getOriginalFilename())));
 
         //them UUID vao z ten file de dam bao ten file la duy nhat
         String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
@@ -121,5 +129,10 @@ public class ProductController {
         //sao chep ten file vao thu muc dich
         Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
         return uniqueFileName;
+    }
+
+    private Boolean isImageFile(MultipartFile file) {
+        String contentType = file.getContentType();
+        return contentType != null && contentType.startsWith("image/");
     }
 }

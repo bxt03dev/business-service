@@ -10,7 +10,7 @@ import com.buixuantruong.shopapp.model.ProductImage;
 import com.buixuantruong.shopapp.repository.CategoryRepository;
 import com.buixuantruong.shopapp.repository.ProductImageRepository;
 import com.buixuantruong.shopapp.repository.ProductRepository;
-import com.buixuantruong.shopapp.service.IProductService;
+import com.buixuantruong.shopapp.utils.fiels.common;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,7 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class ProductService implements IProductService {
+public class ProductServiceImpl implements com.buixuantruong.shopapp.service.ProductService {
 
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
@@ -93,7 +93,7 @@ public class ProductService implements IProductService {
                 .build();
         //khong cho insert qua 5 anh cho 1 san pham
         int size = productImageRepository.findByProductId(productId).size();
-        if(size >= 5){
+        if(size >= common.MAXIMUM_IMAGE){
             throw new InvalidParamException("number of images must be <= 5");
         }
         return productImageRepository.save(newProductImage);

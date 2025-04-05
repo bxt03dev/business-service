@@ -5,7 +5,7 @@ import com.buixuantruong.shopapp.model.Category;
 
 import java.util.List;
 
-public interface ICategoryService {
+public interface CategoryService {
     Category createCategory(CategoryDTO categoryDTO);
 
     Category getCategoryById(long id);

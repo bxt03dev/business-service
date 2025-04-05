@@ -3,7 +3,6 @@ package com.buixuantruong.shopapp.service.impl;
 import com.buixuantruong.shopapp.dto.CategoryDTO;
 import com.buixuantruong.shopapp.model.Category;
 import com.buixuantruong.shopapp.repository.CategoryRepository;
-import com.buixuantruong.shopapp.service.ICategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +10,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class CategoryService implements ICategoryService {
+public class CategoryServiceImpl implements com.buixuantruong.shopapp.service.CategoryService {
 
     private final CategoryRepository categoryRepository;
 

@@ -2,7 +2,8 @@ package com.buixuantruong.shopapp.controller;
 
 import com.buixuantruong.shopapp.dto.CategoryDTO;
 import com.buixuantruong.shopapp.model.Category;
-import com.buixuantruong.shopapp.service.impl.CategoryService;
+import com.buixuantruong.shopapp.service.CategoryService;
+import com.buixuantruong.shopapp.service.impl.CategoryServiceImpl;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
