@@ -2,6 +2,8 @@ package com.buixuantruong.shopapp.controller;
 
 import com.buixuantruong.shopapp.dto.ApiResponse;
 import com.buixuantruong.shopapp.dto.OrderDTO;
+import com.buixuantruong.shopapp.exception.DataNotFoundException;
+import com.buixuantruong.shopapp.model.Order;
 import com.buixuantruong.shopapp.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -52,23 +54,23 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/{user_id}")
-    public ResponseEntity<?> getOrderById(@PathVariable("user_id") Long userId) {
-        try{
-            return ResponseEntity.ok("get order information");
-        }
-        catch(Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    @GetMapping("/user/{user_id}")
+    public ApiResponse<Object> getOrdersByUserId(@PathVariable("user_id") Long userId) {
+        return orderService.getOrderByUserId(userId);
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<Object> getOrderById(@PathVariable("id") Long orderId) throws DataNotFoundException {
+        return orderService.getOrderById(orderId);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<?> updateOrder(@PathVariable("id") @Valid Long id, @RequestBody @Valid OrderDTO order) {
-        return ResponseEntity.ok("Order updated");
+    public ApiResponse<Object> updateOrder(@PathVariable("id") @Valid Long id, @RequestBody @Valid OrderDTO order) throws DataNotFoundException {
+        return orderService.updateOrder(id, order);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrder(@PathVariable("id") Long id) {
-        return ResponseEntity.ok("Order deleted");
+    public ApiResponse<Object> deleteOrder(@PathVariable("id") Long id) {
+        return orderService.deleteOrder(id);
     }
 }

@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -57,22 +58,52 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public Order getOrderById(Long id) {
+    public ApiResponse<Object> getOrderById(Long id) throws DataNotFoundException {
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(orderRepository.findById(id)
+                        .orElseThrow(() -> new DataNotFoundException("Order not found")))
+                .build();
+    }
+
+    @Override
+    public ApiResponse<Object> updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Order not found"));
+        User existingUser = userRepository.findById(orderDTO.getUserId())
+                .orElseThrow(() -> new DataNotFoundException("User not found"));
+        order = orderMapper.toOrder(orderDTO);
+        order.setUser(existingUser);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(orderRepository.save(order))
+                .build();
+    }
+
+    @Override
+    public ApiResponse<Object> deleteOrder(Long id) {
+        Optional<Order> optionalOrder = orderRepository.findById(id);
+        if(optionalOrder.isPresent()) {
+            Order order = optionalOrder.get();
+            order.setActive(false);
+            orderRepository.save(order);
+            return ApiResponse.builder()
+                    .code(StatusCode.SUCCESS.getCode())
+                    .message(StatusCode.SUCCESS.getMessage())
+                    .result("Order deleted successfully")
+                    .build();
+        }
         return null;
     }
 
     @Override
-    public Order updateOrder(Long id, OrderDTO orderDTO) {
-        return null;
-    }
-
-    @Override
-    public Void deleteOrder(Long id) {
-        return null;
-    }
-
-    @Override
-    public List<Order> getAllOrders(Long userId) {
-        return List.of();
+    public ApiResponse<Object> getOrderByUserId(Long userId) {
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(orderRepository.findByUserId(userId))
+                .build();
     }
 }

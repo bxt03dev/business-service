@@ -11,8 +11,8 @@ import java.util.List;
 @Service
 public interface OrderService {
     ApiResponse<Object> createOrder(OrderDTO orderDTO) throws DataNotFoundException;
-    Order getOrderById(Long id);
-    Order updateOrder(Long id, OrderDTO orderDTO);
-    Void deleteOrder(Long id);
-    List<Order> getAllOrders(Long userId);
+    ApiResponse<Object> getOrderById(Long id) throws DataNotFoundException;
+    ApiResponse<Object> updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException;
+    ApiResponse<Object> deleteOrder(Long id);
+    ApiResponse<Object> getOrderByUserId(Long userId);
 }
