@@ -14,30 +14,39 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/v1/users")
 public class UserController {
     UserService userServiceImpl;
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserDTO userDTO,
-                                      BindingResult bindingResult) {
+    public ApiResponse<Object> register(@Valid @RequestBody UserDTO userDTO,
+                                         BindingResult bindingResult) {
         try{
             if(bindingResult.hasErrors()) {
                 List<String> errorMessages = bindingResult.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages.toString());
+                return ApiResponse.builder()
+                        .message(String.join(", ", errorMessages))
+                        .build();
             }
             if(!userDTO.getPassword().equals(userDTO.getRetypePassword())){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Passwords do not match");
+                return ApiResponse.builder()
+                        .message("password and retype password are not the same")
+                        .build();
             }
             userServiceImpl.createUser(userDTO);
-            return ResponseEntity.ok().body("register successfully");
+            return ApiResponse.builder()
+                    .message("user created successfully")
+                    .build();
         }
         catch(Exception e){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ApiResponse.builder()
+                    .message(e.getMessage())
+                    .build();
         }
     }
 

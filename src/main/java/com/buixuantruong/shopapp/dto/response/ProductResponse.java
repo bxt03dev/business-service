@@ -16,16 +16,16 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProductResponse extends BaseResponse{
-    private String name;
-    private float price;
-    private String thumbnail;
-    private String description;
+public class ProductResponse extends BaseResponse {
+    String name;
+    float price;
+    String thumbnail;
+    String description;
     @JsonProperty("category_id")
-    private Long categoryId;
-    private List<MultipartFile> image;
+    Long categoryId;
+    List<MultipartFile> image;
 
-    public static ProductResponse from(Product product){
+    public static ProductResponse from(Product product) {
         ProductResponse productResponse = ProductResponse.builder()
                 .name(product.getName())
                 .description(product.getDescription())

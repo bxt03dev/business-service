@@ -13,8 +13,8 @@ import java.time.LocalDateTime;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BaseResponse {
     @JsonProperty("create_at")
-    private LocalDateTime createAt;
+    LocalDateTime createAt;
 
     @JsonProperty("updated_at")
-    private LocalDateTime updatedAt;
+    LocalDateTime updatedAt;
 }

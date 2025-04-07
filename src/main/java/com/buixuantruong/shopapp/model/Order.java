@@ -2,6 +2,7 @@ package com.buixuantruong.shopapp.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.Date;
@@ -13,60 +14,61 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    User user;
 
     @Column(name = "fullname", length = 100)
-    private String fullName;
+    String fullName;
 
     @Column(name = "email", length = 100)
-    private String email;
+    String email;
 
     @Column(name = "phone_number", length = 100, nullable = false)
-    private String phoneNumber;
+    String phoneNumber;
 
     @Column(name = "address", length = 100)
-    private String address;
+    String address;
 
     @Column(name = "note", length = 100)
-    private String note;
+    String note;
 
     @Column(name = "order_date")
-    private LocalDate orderDate;
+    Date orderDate;
 
     @Column(name = "status")
-    private String status;
+    String status;
 
     @Column(name = "total_money")
-    private String totalMoney;
+    String totalMoney;
 
     @Column(name = "shipping_method")
-    private String shippingMethod;
+    String shippingMethod;
 
     @Column(name = "shipping_address")
-    private String shippingAddress;
+    String shippingAddress;
 
     @Column(name = "shipping_date")
-    private Date shippingDate;
+    LocalDate shippingDate;
 
     @Column(name = "tracking_number")
-    private String trackingNumber;
+    String trackingNumber;
 
     @Column(name = "payment_method")
-    private String paymentMethod;
+    String paymentMethod;
 
     @Column(name = "payment_status")
-    private String paymentStatus;
+    String paymentStatus;
 
     @Column(name = "payment_date")
-    private String paymentDate;
+    String paymentDate;
 
     @Column(name = "active")
-    private String active;
+    Boolean active;
 }

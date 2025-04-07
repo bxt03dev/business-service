@@ -14,6 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ProductListResponse {
-    private List<ProductResponse> products;
-    private int totalPages;
+    List<ProductResponse> products;
+    int totalPages;
 }

@@ -37,7 +37,7 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
                 .orElseThrow(() -> new DataNotFoundException("Role not found"));
         newUser.setRole(role);
 
-        if(userDTO.getFacebookAccountId().length() == 0 && userDTO.getGoogleAccountId().length() == 0){
+        if(userDTO.getFacebookAccountId().isEmpty() && userDTO.getGoogleAccountId().isEmpty()){
             String password = userDTO.getPassword();
             //String encodedPassword = passwordEncouder.encode(password);
             //newUser.setPassword(encodedPassword);
