@@ -1,15 +1,22 @@
 package com.buixuantruong.shopapp.controller;
 
+import com.buixuantruong.shopapp.dto.ApiResponse;
 import com.buixuantruong.shopapp.dto.ProductDTO;
 import com.buixuantruong.shopapp.dto.ProductImageDTO;
+import com.buixuantruong.shopapp.dto.response.ProductListResponse;
+import com.buixuantruong.shopapp.dto.response.ProductResponse;
 import com.buixuantruong.shopapp.model.Product;
 import com.buixuantruong.shopapp.model.ProductImage;
 import com.buixuantruong.shopapp.service.ProductService;
 import com.buixuantruong.shopapp.utils.fiels.common;
+import com.github.javafaker.Faker;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,11 +43,6 @@ import java.util.UUID;
 public class ProductController {
 
     ProductService productService;
-
-    @GetMapping("")
-    public ResponseEntity<String> getAllProducts() {
-        return ResponseEntity.ok("All products");
-    }
 
     @PostMapping("")
     public ResponseEntity<?> createProduct(
@@ -134,5 +136,59 @@ public class ProductController {
     private Boolean isImageFile(MultipartFile file) {
         String contentType = file.getContentType();
         return contentType != null && contentType.startsWith("image/");
+    }
+
+    @GetMapping("")
+    public ApiResponse<Object> getProduct(@RequestParam("page") int page, @RequestParam("limit") int limit) {
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createAt").descending());
+        Page<ProductResponse> products = productService.getAllProducts(pageRequest);
+        int totalPages = products.getTotalPages();
+        List<ProductResponse> productList = products.getContent();
+        return ApiResponse.builder()
+                .result(new ProductListResponse(productList, totalPages))
+                .build();
+    }
+
+    @PostMapping("/generateFakeProducts")
+    private ResponseEntity<String> generateFakeProducts() throws Exception {
+        Faker faker = new Faker();
+        for(int i=  0; i < 1000; i++){
+            String productName = faker.commerce().productName();
+            if(productService.existsProduct(productName)){
+                continue;
+            }
+            ProductDTO productDTO = ProductDTO.builder()
+                    .name(productName)
+                    .description(faker.lorem().sentence(10))
+                    .thumbnail("https://picsum.photos/200/300")
+                    .price((Long)faker.number().numberBetween(10L, 900000000L))
+                    .categoryId((Long)faker.number().numberBetween(1L, 5L))
+                    .build();
+            productService.createProduct(productDTO);
+        }
+        return ResponseEntity.ok("Fake products generated successfully");
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<Object> getProductById(@PathVariable("id") Long id) throws Exception {
+        return ApiResponse.builder()
+                .result(ProductResponse.from(productService.getProductById(id)))
+                .build();
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Object> deleteProduct(@PathVariable("id") Long id) {
+        productService.deleteProduct(id);
+        return ApiResponse.builder()
+                .result("Delete product successfully")
+                .build();
+    }
+
+    @PutMapping("/{id}")
+    public ApiResponse<Object> updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDTO) throws Exception {
+        Product updatedProduct = productService.updateProduct(id, productDTO);
+        return ApiResponse.builder()
+                .result(ProductResponse.from(updatedProduct))
+                .build();
     }
 }

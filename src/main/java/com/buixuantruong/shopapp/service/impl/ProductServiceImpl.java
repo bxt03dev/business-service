@@ -2,6 +2,7 @@ package com.buixuantruong.shopapp.service.impl;
 
 import com.buixuantruong.shopapp.dto.ProductDTO;
 import com.buixuantruong.shopapp.dto.ProductImageDTO;
+import com.buixuantruong.shopapp.dto.response.ProductResponse;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
 import com.buixuantruong.shopapp.exception.InvalidParamException;
 import com.buixuantruong.shopapp.model.Category;
@@ -52,8 +53,8 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
     }
 
     @Override
-    public Page<Product> getAllProducts(PageRequest pageRequest) {
-        return productRepository.findAll(pageRequest);
+    public Page<ProductResponse> getAllProducts(PageRequest pageRequest) {
+        return productRepository.findAll(pageRequest).map(ProductResponse::from);
     }
 
     @Override
