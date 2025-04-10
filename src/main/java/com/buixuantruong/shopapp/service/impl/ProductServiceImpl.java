@@ -92,11 +92,7 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
 
     @Override
     public boolean existsProduct(String name) {
-        return ApiResponse.builder()
-                .code(StatusCode.SUCCESS.getCode())
-                .message(StatusCode.SUCCESS.getMessage())
-                .result(productRepository.existsByName(name))
-                .build();
+        return productRepository.existsByName(name);
     }
 
     @Override
