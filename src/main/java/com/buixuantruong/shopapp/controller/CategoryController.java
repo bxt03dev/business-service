@@ -1,5 +1,6 @@
 package com.buixuantruong.shopapp.controller;
 
+import com.buixuantruong.shopapp.dto.ApiResponse;
 import com.buixuantruong.shopapp.dto.CategoryDTO;
 import com.buixuantruong.shopapp.model.Category;
 import com.buixuantruong.shopapp.service.CategoryService;
@@ -24,38 +25,36 @@ public class CategoryController {
     CategoryService categoryService;
 
     @PostMapping("")
-    public ResponseEntity<?> createCategory(@Valid @RequestBody CategoryDTO categoryDTO,
-                                            BindingResult bindingResult) {
+    public ApiResponse<Object> createCategory(@Valid @RequestBody CategoryDTO categoryDTO,
+                                      BindingResult bindingResult) {
         if(bindingResult.hasErrors()) {
             List<String> errorMessage = bindingResult.getFieldErrors()
                     .stream()
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .toList();
-            return ResponseEntity.badRequest().body(errorMessage);
+            return ApiResponse.builder()
+                    .message(String.join(", ", errorMessage))
+                    .build();
         }
-        categoryService.createCategory(categoryDTO);
-        return ResponseEntity.ok("category added" + categoryDTO);
+        return categoryService.createCategory(categoryDTO);
+
     }
 
     @GetMapping("")
-    public ResponseEntity<List<Category>> getAllCategories(
-            @RequestParam("page") int page,
-            @RequestParam("limit") int limit
-    ) {
-        List<Category> categories = categoryService.getAllCategories();
-        return ResponseEntity.ok(categories);
+    public ApiResponse<Object> getAllCategories(@RequestParam("page") int page, @RequestParam("limit") int limit) {
+        return categoryService.getAllCategories();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateCategory(@PathVariable Long id,
+    public ApiResponse<Object> updateCategory(@PathVariable Long id,
                                                  @RequestBody @Valid CategoryDTO categoryDTO){
-        categoryService.updateCategory(categoryDTO, id);
-        return ResponseEntity.ok("update successfully");
+
+        return categoryService.updateCategory(categoryDTO, id);
     }
 
     @DeleteMapping("/categories/{id}")
-    public ResponseEntity<String> deleteCategory(@PathVariable Long id){
+    public ApiResponse<Object> deleteCategory(@PathVariable Long id){
         categoryService.deleteCategory(id);
-        return ResponseEntity.ok("delete successfully");
+        return categoryService.deleteCategory(id);
     }
 }

@@ -1,10 +1,12 @@
 package com.buixuantruong.shopapp.service.impl;
 
+import com.buixuantruong.shopapp.dto.ApiResponse;
 import com.buixuantruong.shopapp.dto.ProductDTO;
 import com.buixuantruong.shopapp.dto.ProductImageDTO;
 import com.buixuantruong.shopapp.dto.response.ProductResponse;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
 import com.buixuantruong.shopapp.exception.InvalidParamException;
+import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.model.Category;
 import com.buixuantruong.shopapp.model.Product;
 import com.buixuantruong.shopapp.model.ProductImage;
@@ -31,7 +33,7 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
     ProductImageRepository productImageRepository;
 
     @Override
-    public Product createProduct(ProductDTO productDTO) throws DataNotFoundException {
+    public ApiResponse<Object> createProduct(ProductDTO productDTO) throws DataNotFoundException {
         Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
                 .orElseThrow(() -> new DataNotFoundException("Category not found"));
         Product newProduct = Product.builder()
@@ -41,7 +43,11 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
                 .category(existingCategory)
                 .price(productDTO.getPrice())
                 .build();
-        return productRepository.save(newProduct);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(productRepository.save(newProduct))
+                .build();
     }
 
     @Override
@@ -74,14 +80,23 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
     }
 
     @Override
-    public void deleteProduct(long id) {
+    public ApiResponse<Object> deleteProduct(long id) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         optionalProduct.ifPresent(productRepository::delete);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result("Product deleted successfully")
+                .build();
     }
 
     @Override
     public boolean existsProduct(String name) {
-        return productRepository.existsByName(name);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(productRepository.existsByName(name))
+                .build();
     }
 
     @Override

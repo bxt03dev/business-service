@@ -1,7 +1,9 @@
 package com.buixuantruong.shopapp.service.impl;
 
+import com.buixuantruong.shopapp.dto.ApiResponse;
 import com.buixuantruong.shopapp.dto.UserDTO;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
+import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.model.Role;
 import com.buixuantruong.shopapp.model.User;
 import com.buixuantruong.shopapp.repository.RoleRepository;
@@ -19,7 +21,7 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
     UserRepository userRepository;
     RoleRepository roleRepository;
     @Override
-    public User createUser(UserDTO userDTO) throws DataNotFoundException {
+    public ApiResponse<Object> createUser(UserDTO userDTO) throws DataNotFoundException {
         String phoneNumber = userDTO.getPhoneNumber();
         if(userRepository.existsByPhoneNumber(phoneNumber)) {
             throw new DataIntegrityViolationException("Phone number already exists");
@@ -42,11 +44,15 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
             //String encodedPassword = passwordEncouder.encode(password);
             //newUser.setPassword(encodedPassword);
         }
-        return userRepository.save(newUser);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(userRepository.save(newUser))
+                .build();
     }
 
     @Override
-    public String login(String phoneNumber, String password) {
+    public ApiResponse<Object> login(String phoneNumber, String password) {
 
         return null;
     }

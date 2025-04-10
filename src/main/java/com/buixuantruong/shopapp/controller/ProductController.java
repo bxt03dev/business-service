@@ -45,7 +45,7 @@ public class ProductController {
     ProductService productService;
 
     @PostMapping("")
-    public ResponseEntity<?> createProduct(
+    public ApiResponse<Object> createProduct(
             @Valid @RequestBody ProductDTO productDTO,
             BindingResult bindingResult
             //@RequestPart("file") MultipartFile file
@@ -56,14 +56,17 @@ public class ProductController {
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(errorMessage);
+                return ApiResponse.builder()
+                        .message(String.join(", ", errorMessage))
+                        .build();
             }
-            Product newProduct = productService.createProduct(productDTO);
 
-            return ResponseEntity.ok(newProduct);
+            return productService.createProduct(productDTO);
         }
         catch(Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ApiResponse.builder()
+                    .message(e.getMessage())
+                    .build();
         }
 
     }
