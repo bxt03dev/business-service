@@ -1,6 +1,6 @@
 package com.buixuantruong.shopapp.service.impl;
 
-import com.buixuantruong.shopapp.dto.ApiResponse;
+import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.UserDTO;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
 import com.buixuantruong.shopapp.exception.StatusCode;

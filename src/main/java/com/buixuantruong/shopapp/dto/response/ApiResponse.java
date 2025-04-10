@@ -1,4 +1,4 @@
-package com.buixuantruong.shopapp.dto;
+package com.buixuantruong.shopapp.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;

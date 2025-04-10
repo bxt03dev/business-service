@@ -1,10 +1,7 @@
 package com.buixuantruong.shopapp.service;
 
-import com.buixuantruong.shopapp.dto.ApiResponse;
+import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.CategoryDTO;
-import com.buixuantruong.shopapp.model.Category;
-
-import java.util.List;
 
 public interface CategoryService {
     ApiResponse<Object> createCategory(CategoryDTO categoryDTO);

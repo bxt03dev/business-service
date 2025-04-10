@@ -1,9 +1,8 @@
 package com.buixuantruong.shopapp.controller;
 
-import com.buixuantruong.shopapp.dto.ApiResponse;
+import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.OrderDTO;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
-import com.buixuantruong.shopapp.model.Order;
 import com.buixuantruong.shopapp.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;

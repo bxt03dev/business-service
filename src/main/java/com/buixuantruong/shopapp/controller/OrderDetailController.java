@@ -1,7 +1,10 @@
 package com.buixuantruong.shopapp.controller;
 
-import com.buixuantruong.shopapp.dto.ApiResponse;
+import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.OrderDetailDTO;
+import com.buixuantruong.shopapp.dto.response.OrderDetailResponse;
+import com.buixuantruong.shopapp.exception.StatusCode;
+import com.buixuantruong.shopapp.model.OrderDetail;
 import com.buixuantruong.shopapp.service.OrderDetailService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -10,8 +13,11 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
-@RequestMapping("/order_details")
+@RequestMapping("/api/v1/order_details")
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class OrderDetailController {
@@ -20,32 +26,56 @@ public class OrderDetailController {
 
     @GetMapping("")
     public ApiResponse<Object> getOrderDetails(@Valid @PathVariable("id") Long id) {
-        return orderDetailService.getOrderDetailById(id);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(OrderDetailResponse.fromOrderDetail(orderDetailService.getOrderDetailById(id)))
+                .build();
     }
 
     @PostMapping("")
     public ApiResponse<Object> addOrderDetail(@RequestBody @Valid OrderDetailDTO dto) {
-        return orderDetailService.createOrderDetail(dto);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(OrderDetailResponse.fromOrderDetail(orderDetailService.createOrderDetail(dto)))
+                .build();
     }
 
     @GetMapping("/{id}")
     public ApiResponse<Object> getOrderDetail(@PathVariable @Valid Long id) {
-        return orderDetailService.getOrderDetailById(id);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(OrderDetailResponse.fromOrderDetail(orderDetailService.getOrderDetailById(id)))
+                .build();
     }
 
     @GetMapping("/order/{orderId}")
     public ApiResponse<Object> getOrderDetailsByOrderId(@PathVariable @Valid Long orderId) {
-        return orderDetailService.getOrderDetailByOrderId(orderId);
+        List<OrderDetailResponse> orderDetails = orderDetailService.getOrderDetailByOrderId(orderId).stream()
+                .map(OrderDetailResponse::fromOrderDetail)
+                .collect(Collectors.toList());
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(orderDetails)
+                .build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO,
+    public ApiResponse<Object> updateOrderDetail(@Valid @RequestBody OrderDetailDTO orderDetailDTO,
                                                @PathVariable @Valid Long id) {
-        return ResponseEntity.ok("update detail with id " + id + " , newOrderDetailData: " + orderDetailDTO);
+        OrderDetail orderDetail = orderDetailService.updateOrderDetail(id, orderDetailDTO);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(OrderDetailResponse.fromOrderDetail(orderDetail))
+                .build();
     }
 
-    @PutMapping("/order_details/{id}")
-    public ResponseEntity<?> deleteOrderDetail(@PathVariable @Valid Long id) {
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{id}")
+    public ApiResponse<Object> deleteOrderDetail(@PathVariable @Valid Long id) {
+        return orderDetailService.deleteOrderDetail(id);
     }
 }

@@ -1,16 +1,13 @@
 package com.buixuantruong.shopapp.controller;
 
-import com.buixuantruong.shopapp.dto.ApiResponse;
+import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.CategoryDTO;
-import com.buixuantruong.shopapp.model.Category;
 import com.buixuantruong.shopapp.service.CategoryService;
-import com.buixuantruong.shopapp.service.impl.CategoryServiceImpl;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 

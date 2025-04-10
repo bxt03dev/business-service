@@ -1,6 +1,6 @@
 package com.buixuantruong.shopapp.controller;
 
-import com.buixuantruong.shopapp.dto.ApiResponse;
+import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.ProductDTO;
 import com.buixuantruong.shopapp.dto.ProductImageDTO;
 import com.buixuantruong.shopapp.dto.response.ProductListResponse;

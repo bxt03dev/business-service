@@ -1,14 +1,17 @@
 package com.buixuantruong.shopapp.service;
 
-import com.buixuantruong.shopapp.dto.ApiResponse;
+import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.OrderDetailDTO;
+import com.buixuantruong.shopapp.model.OrderDetail;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public interface OrderDetailService {
-    ApiResponse<Object> createOrderDetail(OrderDetailDTO orderDetailDTO);
-    ApiResponse<Object> getOrderDetailById(Long id);
-    ApiResponse<Object> updateOrderDetail(Long id, OrderDetailDTO orderDetailDTO);
+    OrderDetail createOrderDetail(OrderDetailDTO orderDetailDTO);
+    OrderDetail getOrderDetailById(Long id);
+    OrderDetail updateOrderDetail(Long id, OrderDetailDTO orderDetailDTO);
     ApiResponse<Object> deleteOrderDetail(Long id);
-    ApiResponse<Object> getOrderDetailByOrderId(Long orderId);
+    List<OrderDetail> getOrderDetailByOrderId(Long orderId);
 }

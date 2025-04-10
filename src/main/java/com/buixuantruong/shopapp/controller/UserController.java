@@ -1,10 +1,9 @@
 package com.buixuantruong.shopapp.controller;
 
 import com.buixuantruong.shopapp.dto.*;
+import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.service.UserService;
-import com.buixuantruong.shopapp.service.impl.UserServiceImpl;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -22,7 +20,7 @@ public class UserController {
     UserService userServiceImpl;
     @PostMapping("/register")
     public ApiResponse<Object> register(@Valid @RequestBody UserDTO userDTO,
-                                         BindingResult bindingResult) {
+                                        BindingResult bindingResult) {
         try{
             if(bindingResult.hasErrors()) {
                 List<String> errorMessages = bindingResult.getFieldErrors()
@@ -51,8 +49,8 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
-        String token = userServiceImpl.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
-        return ResponseEntity.ok().body(token);
+    public ApiResponse<Object> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
+
+        return userServiceImpl.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
     }
 }

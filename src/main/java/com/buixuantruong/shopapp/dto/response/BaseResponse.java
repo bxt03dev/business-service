@@ -12,9 +12,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BaseResponse {
-    @JsonProperty("create_at")
     LocalDateTime createAt;
-
-    @JsonProperty("updated_at")
     LocalDateTime updatedAt;
 }

@@ -1,6 +1,6 @@
 package com.buixuantruong.shopapp.service.impl;
 
-import com.buixuantruong.shopapp.dto.ApiResponse;
+import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.CategoryDTO;
 import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.model.Category;
@@ -8,7 +8,6 @@ import com.buixuantruong.shopapp.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service

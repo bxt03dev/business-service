@@ -21,7 +21,6 @@ public class ProductResponse extends BaseResponse {
     float price;
     String thumbnail;
     String description;
-    @JsonProperty("category_id")
     Long categoryId;
     List<MultipartFile> image;
 

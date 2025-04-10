@@ -12,10 +12,8 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserLoginDTO {
-    @JsonProperty("phone_number")
     @NotBlank(message = "phone number is required")
     String phoneNumber;
-
     @NotBlank(message = "password is required")
     String password;
 }
