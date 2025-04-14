@@ -2,8 +2,13 @@ package com.buixuantruong.shopapp.controller;
 
 import com.buixuantruong.shopapp.dto.*;
 import com.buixuantruong.shopapp.dto.response.ApiResponse;
+import com.buixuantruong.shopapp.exception.DataNotFoundException;
+import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.service.UserService;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -16,6 +21,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
     UserService userServiceImpl;
     @PostMapping("/register")
@@ -36,10 +43,7 @@ public class UserController {
                         .message("password and retype password are not the same")
                         .build();
             }
-            userServiceImpl.createUser(userDTO);
-            return ApiResponse.builder()
-                    .message("user created successfully")
-                    .build();
+            return userServiceImpl.createUser(userDTO);
         }
         catch(Exception e){
             return ApiResponse.builder()
@@ -49,8 +53,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ApiResponse<Object> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
-
-        return userServiceImpl.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
+    public ApiResponse<Object> login(@Valid @RequestBody UserLoginDTO userLoginDTO) throws DataNotFoundException {
+        String token = userServiceImpl.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(token)
+                .build();
     }
 }

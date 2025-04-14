@@ -24,8 +24,8 @@ public class UserDTO {
     String password;
     String retypePassword;
     Date dateOfBirth;
-    String facebookAccountId;
-    String googleAccountId;
+    Long facebookAccountId;
+    Long googleAccountId;
     @NotNull(message = "role id is required")
     Long roleId;
 }

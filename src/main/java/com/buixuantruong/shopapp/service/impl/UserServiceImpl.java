@@ -48,7 +48,7 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
                 .orElseThrow(() -> new DataNotFoundException("Role not found"));
         newUser.setRole(role);
 
-        if(userDTO.getFacebookAccountId().isEmpty() && userDTO.getGoogleAccountId().isEmpty()){
+        if(userDTO.getFacebookAccountId() == 0 && userDTO.getGoogleAccountId() == 0){
             String password = userDTO.getPassword();
             String encodedPassword = passwordEncoder.encode(password);
             newUser.setPassword(encodedPassword);
@@ -68,14 +68,14 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
         }
         User existingUser = optionalUser.get();
 
-        if(existingUser.getFacebookAccountId().isEmpty() && existingUser.getGoogleAccountId().isEmpty()){
+        if(existingUser.getFacebookAccountId() == 0 && existingUser.getGoogleAccountId() == 0){
             if(!passwordEncoder.matches(password, existingUser.getPassword())){
                 throw new DataNotFoundException("Invalid phone number or password");
             }
         }
 
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(phoneNumber, password);
+                new UsernamePasswordAuthenticationToken(phoneNumber, password, existingUser.getAuthorities());
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);
     }
