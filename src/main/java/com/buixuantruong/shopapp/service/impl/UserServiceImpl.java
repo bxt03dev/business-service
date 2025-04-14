@@ -8,11 +8,17 @@ import com.buixuantruong.shopapp.model.Role;
 import com.buixuantruong.shopapp.model.User;
 import com.buixuantruong.shopapp.repository.RoleRepository;
 import com.buixuantruong.shopapp.repository.UserRepository;
+import com.buixuantruong.shopapp.security.jwt.JWTTokenUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +26,9 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
+    PasswordEncoder passwordEncoder;
+    JWTTokenUtil jwtTokenUtil;
+    AuthenticationManager authenticationManager;
     @Override
     public ApiResponse<Object> createUser(UserDTO userDTO) throws DataNotFoundException {
         String phoneNumber = userDTO.getPhoneNumber();
@@ -41,8 +50,8 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
 
         if(userDTO.getFacebookAccountId().isEmpty() && userDTO.getGoogleAccountId().isEmpty()){
             String password = userDTO.getPassword();
-            //String encodedPassword = passwordEncouder.encode(password);
-            //newUser.setPassword(encodedPassword);
+            String encodedPassword = passwordEncoder.encode(password);
+            newUser.setPassword(encodedPassword);
         }
         return ApiResponse.builder()
                 .code(StatusCode.SUCCESS.getCode())
@@ -52,8 +61,22 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
     }
 
     @Override
-    public ApiResponse<Object> login(String phoneNumber, String password) {
+    public String login(String phoneNumber, String password) throws DataNotFoundException {
+        Optional<User> optionalUser = userRepository.findByPhoneNumber(phoneNumber);
+        if(optionalUser.isEmpty()){
+            throw new DataNotFoundException("Invalid phone number or password");
+        }
+        User existingUser = optionalUser.get();
 
-        return null;
+        if(existingUser.getFacebookAccountId().isEmpty() && existingUser.getGoogleAccountId().isEmpty()){
+            if(!passwordEncoder.matches(password, existingUser.getPassword())){
+                throw new DataNotFoundException("Invalid phone number or password");
+            }
+        }
+
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(phoneNumber, password);
+        authenticationManager.authenticate(authenticationToken);
+        return jwtTokenUtil.generateToken(existingUser);
     }
 }
