@@ -3,6 +3,7 @@ package com.buixuantruong.shopapp.service.impl;
 import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.UserDTO;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
+import com.buixuantruong.shopapp.exception.PermissionException;
 import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.model.Role;
 import com.buixuantruong.shopapp.model.User;
@@ -30,10 +31,15 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
     JWTTokenUtil jwtTokenUtil;
     AuthenticationManager authenticationManager;
     @Override
-    public ApiResponse<Object> createUser(UserDTO userDTO) throws DataNotFoundException {
+    public ApiResponse<Object> createUser(UserDTO userDTO) throws Exception{
         String phoneNumber = userDTO.getPhoneNumber();
         if(userRepository.existsByPhoneNumber(phoneNumber)) {
             throw new DataIntegrityViolationException("Phone number already exists");
+        }
+        Role role = roleRepository.findById(userDTO.getRoleId())
+                .orElseThrow(() -> new DataNotFoundException("Role not found"));
+        if(role.getName().toUpperCase().equals(Role.ADMIN)){
+            throw new PermissionException("Cannot create user with admin role");
         }
         User newUser = User.builder()
                 .fullName(userDTO.getFullName())
@@ -44,8 +50,6 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
                 .facebookAccountId(userDTO.getFacebookAccountId())
                 .googleAccountId(userDTO.getGoogleAccountId())
                 .build();
-        Role role = roleRepository.findById(userDTO.getRoleId())
-                .orElseThrow(() -> new DataNotFoundException("Role not found"));
         newUser.setRole(role);
 
         if(userDTO.getFacebookAccountId() == 0 && userDTO.getGoogleAccountId() == 0){

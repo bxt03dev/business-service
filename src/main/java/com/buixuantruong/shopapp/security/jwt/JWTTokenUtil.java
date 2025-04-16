@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -51,7 +52,7 @@ public class JWTTokenUtil {
                 .getBody();
     }
 
-    private <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
+    public <T> T getClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = this.getClaims(token);
         return claimsResolver.apply(claims);
     }
@@ -59,5 +60,14 @@ public class JWTTokenUtil {
     public Boolean isTokenExpired(String token) {
         Date expirationDate = getClaim(token, Claims::getExpiration);
         return expirationDate.before(new Date());
+    }
+
+    public String extractPhoneNumber(String token){
+        return getClaim(token, Claims::getSubject);
+    }
+
+    public Boolean validateToken(String token, UserDetails userDetails){
+        String phoneNumber = extractPhoneNumber(token);
+        return (phoneNumber.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }
