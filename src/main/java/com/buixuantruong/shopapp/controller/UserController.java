@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -53,12 +54,22 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ApiResponse<Object> login(@Valid @RequestBody UserLoginDTO userLoginDTO) throws DataNotFoundException {
-        String token = userServiceImpl.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
-        return ApiResponse.builder()
-                .code(StatusCode.SUCCESS.getCode())
-                .message(StatusCode.SUCCESS.getMessage())
-                .result(token)
-                .build();
+    public ResponseEntity<ApiResponse<Object>> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
+        try {
+            String token = userServiceImpl.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
+            ApiResponse<Object> response = ApiResponse.builder()
+                    .code(StatusCode.SUCCESS.getCode())
+                    .message(StatusCode.SUCCESS.getMessage())
+                    .result(token)
+                    .build();
+            return ResponseEntity.ok(response);
+        } catch (DataNotFoundException e) {
+            ApiResponse<Object> errorResponse = ApiResponse.builder()
+                    .code(StatusCode.INVALID_CREDENTIALS.getCode()) // Ví dụ: 1001
+                    .message(e.getMessage())
+                    .result(null)
+                    .build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+        }
     }
 }
