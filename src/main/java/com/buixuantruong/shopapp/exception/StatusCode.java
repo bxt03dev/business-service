@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatusCode;
 @Getter
 public enum StatusCode {
     SUCCESS(1000, "SUCCESS", HttpStatus.OK),
-    INVALID_CREDENTIALS(1001, "INVALID_CREDENTIALS", HttpStatus.UNAUTHORIZED);
+    INVALID_CREDENTIALS(1001, "INVALID_CREDENTIALS", HttpStatus.UNAUTHORIZED),
+    FILE_NOT_FOUND(1002, "FILE_NOT_FOUND", HttpStatus.NOT_FOUND);
 
     private final int code;
     private final HttpStatusCode httpStatusCode;

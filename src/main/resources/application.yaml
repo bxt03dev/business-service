@@ -21,3 +21,6 @@ spring:
 jwt:
   expiration: 7200
   secretKey: "L7p3X6gRHFtLJYp7v9XxWD5mMcu6uZzB4ELgkW8l2aI="
+
+file:
+  upload-dir: "F:/my workspace/Apple-shop/business-service/uploads"

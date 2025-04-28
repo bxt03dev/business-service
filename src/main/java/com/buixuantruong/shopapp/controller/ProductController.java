@@ -5,6 +5,7 @@ import com.buixuantruong.shopapp.dto.ProductDTO;
 import com.buixuantruong.shopapp.dto.ProductImageDTO;
 import com.buixuantruong.shopapp.dto.response.ProductListResponse;
 import com.buixuantruong.shopapp.dto.response.ProductResponse;
+import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.model.Product;
 import com.buixuantruong.shopapp.model.ProductImage;
 import com.buixuantruong.shopapp.service.ProductService;
@@ -14,6 +15,9 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,7 +32,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
@@ -43,6 +49,10 @@ import java.util.UUID;
 public class ProductController {
 
     ProductService productService;
+
+    @Value("${file.upload-dir}")
+    @NonFinal
+    private String uploadDir;
 
     @PostMapping("")
     public ApiResponse<Object> createProduct(
@@ -71,6 +81,29 @@ public class ProductController {
 
     }
 
+
+
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<?> viewImage(@PathVariable String imageName) {
+        try {
+            Path imagePath = Paths.get(uploadDir, imageName);
+            UrlResource resource = new UrlResource(imagePath.toUri());
+            if (resource.exists()) {
+                String contentType = Files.probeContentType(imagePath);
+                if (contentType == null) {
+                    contentType = "application/octet-stream";
+                }
+                return ResponseEntity.ok()
+                        .contentType(MediaType.parseMediaType(contentType))
+                        .body(resource);
+            } else {
+                return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @PostMapping(value = "/uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImage(
             @PathVariable("id") Long id,
@@ -78,20 +111,20 @@ public class ProductController {
         try {
             Product existingProduct = productService.getProductById(id);
             files = files == null ? new ArrayList<MultipartFile>() : files;
-            if(files.size() > common.MAXIMUM_IMAGE){
+            if (files.size() > common.MAXIMUM_IMAGE) {
                 return ResponseEntity.badRequest().body("You can only upload up to 5 images");
             }
             List<ProductImage> productImages = new ArrayList<>();
-            for(MultipartFile file : files) {
-                if(file != null){
-                    if(file.getSize() == 0){
+            for (MultipartFile file : files) {
+                if (file != null) {
+                    if (file.getSize() == 0) {
                         continue;
                     }
-                    if(file.getSize() > 10 * 1024 * 1024) {
+                    if (file.getSize() > 10 * 1024 * 1024) {
                         throw new ResponseStatusException(HttpStatus.PAYLOAD_TOO_LARGE, "File too large");
                     }
                     String contentType = file.getContentType();
-                    if(contentType == null || !contentType.startsWith("image")) {
+                    if (contentType == null || !contentType.startsWith("image")) {
                         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body("Unsupported Media Type");
                     }
                     String filename = storeFile(file);
@@ -102,13 +135,11 @@ public class ProductController {
                                     .build());
                     productImages.add(productImage);
                 }
-                return ResponseEntity.ok().body(productImages);
             }
+            return ResponseEntity.ok().body(productImages); // Di chuyển ra ngoài vòng lặp
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
-
-        return null;
     }
 
     private String storeFile(MultipartFile file) throws IOException {

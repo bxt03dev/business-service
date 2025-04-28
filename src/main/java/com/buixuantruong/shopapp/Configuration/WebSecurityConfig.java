@@ -49,6 +49,7 @@ public class WebSecurityConfig {
                             .requestMatchers(POST, "/api/v1/products/**").hasRole(Role.ADMIN)
                             .requestMatchers(PUT, "/api/v1/products/**").hasRole(Role.ADMIN)
                             .requestMatchers(DELETE, "/api/v1/products/**").hasRole(Role.ADMIN)
+                            .requestMatchers(GET, "/api/v1/products/images/**").permitAll()
                             //order
                             .requestMatchers(PUT, "/api/v1/orders/**").hasRole(Role.ADMIN)
                             .requestMatchers(GET, "/api/v1/orders/**").hasAnyRole(Role.USER, Role.ADMIN)
