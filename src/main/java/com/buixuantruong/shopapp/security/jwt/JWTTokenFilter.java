@@ -17,6 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.*;
 
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class JWTTokenFilter extends OncePerRequestFilter {
             final String authHeader = request.getHeader("Authorization");
             if(authHeader == null || !authHeader.startsWith("Bearer ")){
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                return;
             }
             if(authHeader != null && authHeader.startsWith("Bearer ")){
                 final String token = authHeader.substring(7);
