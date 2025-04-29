@@ -5,7 +5,6 @@ import com.buixuantruong.shopapp.dto.ProductDTO;
 import com.buixuantruong.shopapp.dto.ProductImageDTO;
 import com.buixuantruong.shopapp.dto.response.ProductListResponse;
 import com.buixuantruong.shopapp.dto.response.ProductResponse;
-import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.model.Product;
 import com.buixuantruong.shopapp.model.ProductImage;
 import com.buixuantruong.shopapp.service.ProductService;
@@ -32,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,7 +45,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductController {
-
     ProductService productService;
 
     @Value("${file.upload-dir}")
@@ -55,13 +52,9 @@ public class ProductController {
     private String uploadDir;
 
     @PostMapping("")
-    public ApiResponse<Object> createProduct(
-            @Valid @RequestBody ProductDTO productDTO,
-            BindingResult bindingResult
-            //@RequestPart("file") MultipartFile file
-            ){
-        try{
-            if(bindingResult.hasErrors()) {
+    public ApiResponse<Object> createProduct(@Valid @RequestBody ProductDTO productDTO, BindingResult bindingResult) {
+        try {
+            if (bindingResult.hasErrors()) {
                 List<String> errorMessage = bindingResult.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
@@ -70,18 +63,13 @@ public class ProductController {
                         .message(String.join(", ", errorMessage))
                         .build();
             }
-
             return productService.createProduct(productDTO);
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return ApiResponse.builder()
                     .message(e.getMessage())
                     .build();
         }
-
     }
-
-
 
     @GetMapping("/images/{imageName}")
     public ResponseEntity<?> viewImage(@PathVariable String imageName) {
@@ -105,9 +93,7 @@ public class ProductController {
     }
 
     @PostMapping(value = "/uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> uploadImage(
-            @PathVariable("id") Long id,
-            @RequestPart("files") List<MultipartFile> files) {
+    public ResponseEntity<?> uploadImage(@PathVariable("id") Long id, @RequestPart("files") List<MultipartFile> files) {
         try {
             Product existingProduct = productService.getProductById(id);
             files = files == null ? new ArrayList<MultipartFile>() : files;
@@ -136,33 +122,23 @@ public class ProductController {
                     productImages.add(productImage);
                 }
             }
-            return ResponseEntity.ok().body(productImages); // Di chuyển ra ngoài vòng lặp
+            return ResponseEntity.ok().body(productImages);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     private String storeFile(MultipartFile file) throws IOException {
-        if(!isImageFile(file) || file.getOriginalFilename() == null){
+        if (!isImageFile(file) || file.getOriginalFilename() == null) {
             throw new ResponseStatusException(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Unsupported Media Type");
         }
-        String fileName = StringUtils.cleanPath((Objects.requireNonNull(file.getOriginalFilename())));
-
-        //them UUID vao z ten file de dam bao ten file la duy nhat
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
-
-        //duong dan den thu muc muon luu file
-        java.nio.file.Path uploadDir = Paths.get("uploads");
-
-        //kiem tra va tao thu muc neu khong ton tai
-        if(!Files.exists(uploadDir)) {
+        Path uploadDir = Paths.get("uploads");
+        if (!Files.exists(uploadDir)) {
             Files.createDirectories(uploadDir);
         }
-
-        //duong dan day du ten file
-        java.nio.file.Path destination = Paths.get(uploadDir.toString(), uniqueFileName);
-
-        //sao chep ten file vao thu muc dich
+        Path destination = Paths.get(uploadDir.toString(), uniqueFileName);
         Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
         return uniqueFileName;
     }
@@ -174,7 +150,7 @@ public class ProductController {
 
     @GetMapping("")
     public ApiResponse<Object> getProduct(@RequestParam("page") int page, @RequestParam("limit") int limit) {
-        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("createAt").descending());
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
         Page<ProductResponse> products = productService.getAllProducts(pageRequest);
         int totalPages = products.getTotalPages();
         List<ProductResponse> productList = products.getContent();
@@ -186,17 +162,17 @@ public class ProductController {
     @PostMapping("/generateFakeProducts")
     private ResponseEntity<String> generateFakeProducts() throws Exception {
         Faker faker = new Faker();
-        for(int i=  0; i < 1000; i++){
+        for (int i = 0; i < 1000; i++) {
             String productName = faker.commerce().productName();
-            if(productService.existsProduct(productName)){
+            if (productService.existsProduct(productName)) {
                 continue;
             }
             ProductDTO productDTO = ProductDTO.builder()
                     .name(productName)
                     .description(faker.lorem().sentence(10))
                     .thumbnail("https://picsum.photos/200/300")
-                    .price((Long)faker.number().numberBetween(10L, 900000000L))
-                    .categoryId((Long)faker.number().numberBetween(1L, 5L))
+                    .price((long) faker.number().numberBetween(10L, 900000000L))
+                    .categoryId((long) faker.number().numberBetween(1L, 5L))
                     .build();
             productService.createProduct(productDTO);
         }

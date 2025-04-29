@@ -14,6 +14,7 @@ import com.buixuantruong.shopapp.repository.CategoryRepository;
 import com.buixuantruong.shopapp.repository.ProductImageRepository;
 import com.buixuantruong.shopapp.repository.ProductRepository;
 import com.buixuantruong.shopapp.utils.fiels.common;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -27,7 +28,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProductServiceImpl implements com.buixuantruong.shopapp.service.ProductService {
-
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
     ProductImageRepository productImageRepository;
@@ -53,9 +53,7 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
     @Override
     public Product getProductById(long id) throws Exception {
         return productRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException(
-                        "cannot find product with id = " + id
-                ));
+                .orElseThrow(() -> new DataNotFoundException("Cannot find product with id = " + id));
     }
 
     @Override
@@ -64,9 +62,10 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
     }
 
     @Override
+    @Transactional
     public Product updateProduct(long id, ProductDTO productDTO) throws Exception {
         Product existingProduct = getProductById(id);
-        if(existingProduct != null){
+        if (existingProduct != null) {
             Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
                     .orElseThrow(() -> new DataNotFoundException("Category not found"));
             existingProduct.setName(productDTO.getName());
@@ -80,6 +79,7 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
     }
 
     @Override
+    @Transactional
     public ApiResponse<Object> deleteProduct(long id) {
         Optional<Product> optionalProduct = productRepository.findById(id);
         optionalProduct.ifPresent(productRepository::delete);
@@ -98,15 +98,14 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
     @Override
     public ProductImage createProductImage(Long productId, ProductImageDTO productImageDTO) throws DataNotFoundException, InvalidParamException {
         Product existingProduct = productRepository.findById(productId)
-                .orElseThrow(() -> new DataNotFoundException("can't find product with id = " + productImageDTO.getProductId()));
+                .orElseThrow(() -> new DataNotFoundException("Can't find product with id = " + productImageDTO.getProductId()));
         ProductImage newProductImage = ProductImage.builder()
                 .product(existingProduct)
                 .imageUrl(productImageDTO.getImageUrl())
                 .build();
-        //khong cho insert qua 5 anh cho 1 san pham
         int size = productImageRepository.findByProductId(productId).size();
-        if(size >= common.MAXIMUM_IMAGE){
-            throw new InvalidParamException("number of images must be <= 5");
+        if (size >= common.MAXIMUM_IMAGE) {
+            throw new InvalidParamException("Number of images must be <= 5");
         }
         return productImageRepository.save(newProductImage);
     }

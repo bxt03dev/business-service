@@ -11,6 +11,7 @@ import com.buixuantruong.shopapp.model.User;
 import com.buixuantruong.shopapp.repository.OrderRepository;
 import com.buixuantruong.shopapp.repository.UserRepository;
 import com.buixuantruong.shopapp.service.OrderService;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -67,6 +68,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public ApiResponse<Object> updateOrder(Long id, OrderDTO orderDTO) throws DataNotFoundException {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Order not found"));
@@ -82,6 +84,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public ApiResponse<Object> deleteOrder(Long id) {
         Optional<Order> optionalOrder = orderRepository.findById(id);
         if(optionalOrder.isPresent()) {
