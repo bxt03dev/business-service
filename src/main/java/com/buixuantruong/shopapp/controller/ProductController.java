@@ -5,6 +5,7 @@ import com.buixuantruong.shopapp.dto.ProductDTO;
 import com.buixuantruong.shopapp.dto.ProductImageDTO;
 import com.buixuantruong.shopapp.dto.response.ProductListResponse;
 import com.buixuantruong.shopapp.dto.response.ProductResponse;
+import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.model.Product;
 import com.buixuantruong.shopapp.model.ProductImage;
 import com.buixuantruong.shopapp.service.ProductService;
@@ -134,11 +135,11 @@ public class ProductController {
         }
         String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         String uniqueFileName = UUID.randomUUID().toString() + "_" + fileName;
-        Path uploadDir = Paths.get("uploads");
-        if (!Files.exists(uploadDir)) {
-            Files.createDirectories(uploadDir);
+        Path uploadPath = Paths.get(this.uploadDir);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
         }
-        Path destination = Paths.get(uploadDir.toString(), uniqueFileName);
+        Path destination = Paths.get(uploadPath.toString(), uniqueFileName);
         Files.copy(file.getInputStream(), destination, StandardCopyOption.REPLACE_EXISTING);
         return uniqueFileName;
     }
@@ -182,7 +183,9 @@ public class ProductController {
     @GetMapping("/{id}")
     public ApiResponse<Object> getProductById(@PathVariable("id") Long id) throws Exception {
         return ApiResponse.builder()
-                .result(ProductResponse.from(productService.getProductById(id)))
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(productService.getProductById(id))
                 .build();
     }
 

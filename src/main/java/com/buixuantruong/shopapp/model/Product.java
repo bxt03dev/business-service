@@ -1,7 +1,10 @@
 package com.buixuantruong.shopapp.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -29,4 +32,8 @@ public class Product extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<ProductImage> productImages;
 }
