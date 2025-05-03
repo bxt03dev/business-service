@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -108,5 +109,10 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
             throw new InvalidParamException("Number of images must be <= 5");
         }
         return productImageRepository.save(newProductImage);
+    }
+
+    @Override
+    public List<Product> findProductByIds(List<Long> productIds) {
+        return productRepository.findProductByIds(productIds);
     }
 }

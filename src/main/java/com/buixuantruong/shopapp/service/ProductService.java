@@ -10,6 +10,9 @@ import com.buixuantruong.shopapp.model.Product;
 import com.buixuantruong.shopapp.model.ProductImage;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
 
 public interface ProductService {
     ApiResponse<Object> createProduct(ProductDTO productDTO) throws Exception;
@@ -25,4 +28,6 @@ public interface ProductService {
     boolean existsProduct(String name);
 
     ProductImage createProductImage(Long productId, ProductImageDTO productImageDTO) throws DataNotFoundException, InvalidParamException;
+
+    List<Product> findProductByIds(List<Long> productIds);
 }

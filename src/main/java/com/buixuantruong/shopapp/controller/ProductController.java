@@ -36,10 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/products")
@@ -201,7 +198,23 @@ public class ProductController {
     public ApiResponse<Object> updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDTO) throws Exception {
         Product updatedProduct = productService.updateProduct(id, productDTO);
         return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
                 .result(ProductResponse.from(updatedProduct))
                 .build();
     }
+
+    @GetMapping("/by-ids")
+    public ApiResponse<Object> getProductsByIds(@RequestParam("ids") String ids) {
+        List<Long> productIds = Arrays.stream(ids.split(","))
+                .map(Long::parseLong)
+                .toList();
+        List<Product> products = productService.findProductByIds(productIds);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(products)
+                .build();
+    }
+
 }
