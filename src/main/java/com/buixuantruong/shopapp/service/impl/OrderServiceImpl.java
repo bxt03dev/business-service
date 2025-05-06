@@ -58,13 +58,9 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
-    public ApiResponse<Object> getOrderById(Long id) throws DataNotFoundException {
-        return ApiResponse.builder()
-                .code(StatusCode.SUCCESS.getCode())
-                .message(StatusCode.SUCCESS.getMessage())
-                .result(orderRepository.findById(id)
-                        .orElseThrow(() -> new DataNotFoundException("Order not found")))
-                .build();
+    public Order getOrderById(Long id) throws DataNotFoundException {
+        return orderRepository.findById(id)
+                .orElseThrow(() -> new DataNotFoundException("Order not found"));
     }
 
     @Override

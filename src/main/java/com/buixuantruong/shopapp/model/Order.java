@@ -1,11 +1,13 @@
 package com.buixuantruong.shopapp.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -46,7 +48,7 @@ public class Order {
     String status;
 
     @Column(name = "total_money")
-    String totalMoney;
+    Float totalMoney;
 
     @Column(name = "shipping_method")
     String shippingMethod;
@@ -71,4 +73,8 @@ public class Order {
 
     @Column(name = "active")
     Boolean active;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    List<OrderDetail> orderDetails;
 }

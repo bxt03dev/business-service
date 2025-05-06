@@ -2,7 +2,9 @@ package com.buixuantruong.shopapp.controller;
 
 import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.OrderDTO;
+import com.buixuantruong.shopapp.dto.response.OrderResponse;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
+import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -60,7 +62,11 @@ public class OrderController {
 
     @GetMapping("/{id}")
     public ApiResponse<Object> getOrderById(@PathVariable("id") Long orderId) throws DataNotFoundException {
-        return orderService.getOrderById(orderId);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(OrderResponse.fromOrder(orderService.getOrderById(orderId)))
+                .build();
     }
 
     @PutMapping("{id}")

@@ -9,6 +9,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Getter
@@ -32,5 +33,7 @@ public class OrderDTO {
     String shippingAddress;
     String paymentMethod;
     LocalDate shippingDate;
+    List<CartItemDTO> cartItems;
+
 
 }
