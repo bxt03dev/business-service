@@ -3,6 +3,7 @@ package com.buixuantruong.shopapp.service.impl;
 import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.UserDTO;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
+import com.buixuantruong.shopapp.exception.ExpiredTokenException;
 import com.buixuantruong.shopapp.exception.PermissionException;
 import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.model.Role;
@@ -82,5 +83,20 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
                 new UsernamePasswordAuthenticationToken(phoneNumber, password, existingUser.getAuthorities());
         authenticationManager.authenticate(authenticationToken);
         return jwtTokenUtil.generateToken(existingUser);
+    }
+
+    @Override
+    public User getUserDetailByToken(String token) throws Exception {
+        if (jwtTokenUtil.isTokenExpired(token)) {
+            throw new ExpiredTokenException("Token is expired");
+        }
+        String phoneNumber = jwtTokenUtil.extractPhoneNumber(token);
+        Optional<User> user = userRepository.findByPhoneNumber(phoneNumber);
+
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            throw new Exception("User not found");
+        }
     }
 }

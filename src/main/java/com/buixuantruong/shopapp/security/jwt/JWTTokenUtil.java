@@ -3,6 +3,7 @@ package com.buixuantruong.shopapp.security.jwt;
 import com.buixuantruong.shopapp.model.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.AccessLevel;
@@ -29,12 +30,13 @@ public class JWTTokenUtil {
     public String generateToken(User user){
         Map<String, Object> claims = new HashMap<>();
         claims.put("phoneNumber", user.getPhoneNumber());
+        claims.put("userId", user.getId());
 
         String token = Jwts.builder()
                 .setClaims(claims)
                 .setSubject(user.getPhoneNumber())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_TIME * 1000L))
-                .signWith(getSignInKey())
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
         return token;
     }

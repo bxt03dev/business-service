@@ -2,8 +2,10 @@ package com.buixuantruong.shopapp.controller;
 
 import com.buixuantruong.shopapp.dto.*;
 import com.buixuantruong.shopapp.dto.response.ApiResponse;
+import com.buixuantruong.shopapp.dto.response.UserResponse;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
 import com.buixuantruong.shopapp.exception.StatusCode;
+import com.buixuantruong.shopapp.model.User;
 import com.buixuantruong.shopapp.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -13,10 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,7 +24,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
-    UserService userServiceImpl;
+    UserService userService;
     @PostMapping("/register")
     public ApiResponse<Object> register(@Valid @RequestBody UserDTO userDTO,
                                         BindingResult bindingResult) {
@@ -44,7 +43,7 @@ public class UserController {
                         .message("password and retype password are not the same")
                         .build();
             }
-            return userServiceImpl.createUser(userDTO);
+            return userService.createUser(userDTO);
         }
         catch(Exception e){
             return ApiResponse.builder()
@@ -56,7 +55,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Object>> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
         try {
-            String token = userServiceImpl.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
+            String token = userService.login(userLoginDTO.getPhoneNumber(), userLoginDTO.getPassword());
             ApiResponse<Object> response = ApiResponse.builder()
                     .code(StatusCode.SUCCESS.getCode())
                     .message(StatusCode.SUCCESS.getMessage())
@@ -71,5 +70,16 @@ public class UserController {
                     .build();
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
+    }
+
+    @PostMapping("/details")
+    public ApiResponse<Object> getUserDetails(@RequestHeader("Authorization") String token) throws Exception {
+        String extractedToken = token.substring(7);
+        User user = userService.getUserDetailByToken(extractedToken);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(UserResponse.fromUser(user))
+                .build();
     }
 }
