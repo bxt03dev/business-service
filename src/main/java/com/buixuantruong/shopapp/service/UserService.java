@@ -1,5 +1,6 @@
 package com.buixuantruong.shopapp.service;
 
+import com.buixuantruong.shopapp.dto.UpdateUserDTO;
 import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.UserDTO;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
@@ -13,4 +14,5 @@ public interface  UserService {
     String login(String phoneNumber, String password) throws DataNotFoundException;
 
     User getUserDetailByToken(String token) throws Exception;
+    User updateUser(Long userId, UpdateUserDTO updatedUserDTO) throws Exception;
 }

@@ -18,6 +18,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -80,6 +81,28 @@ public class UserController {
                 .code(StatusCode.SUCCESS.getCode())
                 .message(StatusCode.SUCCESS.getMessage())
                 .result(UserResponse.fromUser(user))
+                .build();
+    }
+
+    @PutMapping("/details/{userId}")
+    public ApiResponse<Object> updateUserDetails(@PathVariable Long userId,
+                                                 @RequestBody UpdateUserDTO updatedUserDTO,
+                                                 @RequestHeader("Authorization") String authorizationHeader) throws Exception {
+        String extractedToken = authorizationHeader.substring(7);
+        User user = userService.getUserDetailByToken(extractedToken);
+        // Ensure that the user making the request matches the user being updated
+        if (!Objects.equals(user.getId(), userId)) {
+            return ApiResponse.builder()
+                    .code(StatusCode.SUCCESS.getCode())
+                    .message(StatusCode.SUCCESS.getMessage())
+                    .result(HttpStatus.FORBIDDEN)
+                    .build();
+        }
+        User updatedUser = userService.updateUser(userId, updatedUserDTO);
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(UserResponse.fromUser(updatedUser))
                 .build();
     }
 }
