@@ -74,10 +74,17 @@ public class JWTTokenFilter extends OncePerRequestFilter {
         final List<Pair<String, String>> byPassTokens = Arrays.asList(
                 Pair.of("/api/v1/products", "GET"),
                 Pair.of("/api/v1/categories", "GET"),
-                Pair.of("/api/v1/orders", "GET"),
+//                Pair.of("/api/v1/orders", "GET"),
                 Pair.of("/api/v1/users/register", "POST"),
                 Pair.of("/api/v1/products/images", "GET"),
                 Pair.of("/api/v1/users/login", "POST"));
+
+        String requestPath = request.getServletPath();
+        String requestMethod = request.getMethod();
+
+        if(requestPath.equals("/api/v1/orders") && requestMethod.equals("GET")){
+            return true;
+        }
 
         for(Pair<String, String> byPassToken : byPassTokens){
             if(request.getServletPath().contains(byPassToken.getLeft()) && request.getMethod().equals(byPassToken.getRight())){

@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -26,6 +27,7 @@ import static org.springframework.http.HttpMethod.*;
 @Configuration
 @EnableMethodSecurity
 @EnableWebMvc
+//@EnableGlobalMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class WebSecurityConfig {
@@ -55,6 +57,7 @@ public class WebSecurityConfig {
                             .requestMatchers(GET, "/api/v1/orders/**").permitAll()
                             .requestMatchers(DELETE, "/api/v1/orders/**").hasRole(Role.ADMIN)
                             .requestMatchers(POST, "/api/v1/orders").hasRole(Role.USER)
+                            .requestMatchers(GET, "/api/v1/orders/get-orders-by-keyword").hasAnyRole(Role.ADMIN)
                             //orderDetail
                             .requestMatchers(PUT, "/api/v1/order_details").hasRole(Role.ADMIN)
                             .requestMatchers(GET, "/api/v1/order_details/**").hasAnyRole(Role.USER, Role.ADMIN)

@@ -46,7 +46,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "google_account_id")
     private Long googleAccountId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role role;
 

@@ -2,15 +2,24 @@ package com.buixuantruong.shopapp.controller;
 
 import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.OrderDTO;
+import com.buixuantruong.shopapp.dto.response.OrderListResponse;
 import com.buixuantruong.shopapp.dto.response.OrderResponse;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
 import com.buixuantruong.shopapp.exception.StatusCode;
+import com.buixuantruong.shopapp.model.Order;
 import com.buixuantruong.shopapp.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -77,5 +86,23 @@ public class OrderController {
     @DeleteMapping("/{id}")
     public ApiResponse<Object> deleteOrder(@PathVariable("id") Long id) {
         return orderService.deleteOrder(id);
+    }
+
+    @GetMapping("/get-orders-by-keyword")
+    @Transactional
+//    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ApiResponse<Object> getOrdersByKeyword(
+            @RequestParam(defaultValue = "", required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit) {
+        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
+        Page<Order> orderPage = orderService.getOrdersByKeyword(keyword, pageRequest);
+        int totalPages = orderPage.getTotalPages();
+        List<Order> orderResponses = orderPage.getContent();
+        return ApiResponse.builder()
+                .code(StatusCode.SUCCESS.getCode())
+                .message(StatusCode.SUCCESS.getMessage())
+                .result(new OrderListResponse(orderResponses, totalPages))
+                .build();
     }
 }
