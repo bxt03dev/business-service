@@ -27,7 +27,7 @@ public class OrderResponse {
     String note;
     Date orderDate;
     String status;
-    double totalMoney;
+    Long totalMoney;
     String shippingMethod;
     String shippingAddress;
     LocalDate shippingDate;

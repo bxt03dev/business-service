@@ -12,6 +12,6 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderListResponse {
-    List<Order> orders;
+    List<OrderResponse> orders;
     Integer totalPages;
 }

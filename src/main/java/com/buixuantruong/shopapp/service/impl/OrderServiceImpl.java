@@ -3,6 +3,7 @@ package com.buixuantruong.shopapp.service.impl;
 import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.OrderDTO;
 import com.buixuantruong.shopapp.dto.response.OrderResponse;
+import com.buixuantruong.shopapp.dto.response.ProductResponse;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
 import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.mapper.OrderMapper;
@@ -17,6 +18,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -107,8 +109,10 @@ public class OrderServiceImpl implements OrderService {
                 .result(orderRepository.findByUserId(userId))
                 .build();
     }
+
     @Override
-    public Page<Order> getOrdersByKeyword(String keyword, Pageable pageable){
-        return orderRepository.findByKeyword(keyword, pageable);
+    public Page<OrderResponse> getAllUserOrders(PageRequest pageRequest) {
+        return orderRepository.findAll(pageRequest).map(OrderResponse::fromOrder);
     }
+
 }

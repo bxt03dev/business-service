@@ -28,7 +28,7 @@ public class OrderDTO {
     String address;
     String note;
     @Min(value = 0, message = "total money must be > 0")
-    Float totalMoney;
+    Long totalMoney;
     String shippingMethod;
     String shippingAddress;
     String paymentMethod;

@@ -1,9 +1,7 @@
 package com.buixuantruong.shopapp.controller;
 
-import com.buixuantruong.shopapp.dto.response.ApiResponse;
+import com.buixuantruong.shopapp.dto.response.*;
 import com.buixuantruong.shopapp.dto.OrderDTO;
-import com.buixuantruong.shopapp.dto.response.OrderListResponse;
-import com.buixuantruong.shopapp.dto.response.OrderResponse;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
 import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.model.Order;
@@ -88,21 +86,14 @@ public class OrderController {
         return orderService.deleteOrder(id);
     }
 
-    @GetMapping("/get-orders-by-keyword")
-    @Transactional
-//    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ApiResponse<Object> getOrdersByKeyword(
-            @RequestParam(defaultValue = "", required = false) String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit) {
+    @GetMapping("/get-user-orders")
+    public ApiResponse<Object> getProduct(@RequestParam("page") int page, @RequestParam("limit") int limit) {
         PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
-        Page<Order> orderPage = orderService.getOrdersByKeyword(keyword, pageRequest);
-        int totalPages = orderPage.getTotalPages();
-        List<Order> orderResponses = orderPage.getContent();
+        Page<OrderResponse> orders = orderService.getAllUserOrders(pageRequest);
+        int totalPages = orders.getTotalPages();
+        List<OrderResponse> orderList = orders.getContent();
         return ApiResponse.builder()
-                .code(StatusCode.SUCCESS.getCode())
-                .message(StatusCode.SUCCESS.getMessage())
-                .result(new OrderListResponse(orderResponses, totalPages))
+                .result(new OrderListResponse(orderList, totalPages))
                 .build();
     }
 }

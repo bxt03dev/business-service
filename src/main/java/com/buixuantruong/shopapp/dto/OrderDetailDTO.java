@@ -27,7 +27,7 @@ public class OrderDetailDTO {
 
 
     @Min(value = 0, message = "total money must be > 0")
-    private int totalMoney;
+    private Long totalMoney;
 
     private String color;
 }

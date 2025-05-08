@@ -20,7 +20,7 @@ public class OrderDetailResponse {
     Long productId;
     Float price;
     Integer numberOfProducts;
-    Integer totalMoney;
+    Long totalMoney;
     String color;
 
     public static OrderDetailResponse fromOrderDetail(OrderDetail orderDetail) {
