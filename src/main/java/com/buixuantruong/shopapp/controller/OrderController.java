@@ -92,8 +92,12 @@ public class OrderController {
         Page<OrderResponse> orders = orderService.getAllUserOrders(pageRequest);
         int totalPages = orders.getTotalPages();
         List<OrderResponse> orderList = orders.getContent();
+        OrderListResponse orderListResponse = OrderListResponse.builder()
+                .orders(orderList)
+                .totalPages(totalPages)
+                .build();
         return ApiResponse.builder()
-                .result(new OrderListResponse(orderList, totalPages))
+                .result(orderListResponse)
                 .build();
     }
 }

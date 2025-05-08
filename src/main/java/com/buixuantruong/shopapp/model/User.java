@@ -35,6 +35,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "password", length = 100)
     private String password;
 
+    @Column(name = "active")
     private boolean active;
 
     @Column(name = "date_of_birth")
@@ -54,7 +55,6 @@ public class User extends BaseEntity implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
         authorityList.add(new SimpleGrantedAuthority("ROLE_" + getRole().getName().toUpperCase()));
-        //authorityList.add(new SimpleGrantedAuthority("ROLE_admin"));
         return authorityList;
     }
 
