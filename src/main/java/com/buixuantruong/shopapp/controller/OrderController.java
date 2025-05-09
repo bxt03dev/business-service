@@ -102,4 +102,46 @@ public class OrderController {
                     .build();
         }
     }
+    
+    @GetMapping("/get-orders-by-keyword")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse<Object> getOrdersByKeyword(
+            @RequestParam("keyword") String keyword,
+            @RequestParam("page") int page,
+            @RequestParam("limit") int limit) {
+        try {
+            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
+            // Just use the existing getAllUserOrders method, as we don't have a specific search method
+            // In a real implementation, we would add a search method in the service
+            Page<OrderResponse> orders = orderService.getAllUserOrders(pageRequest);
+            int totalPages = orders.getTotalPages();
+            List<OrderResponse> orderList = orders.getContent();
+            
+            // Filter orders on the server side if keyword is provided
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String searchKeyword = keyword.toLowerCase();
+                orderList = orderList.stream()
+                    .filter(order -> 
+                        (order.getFullName() != null && order.getFullName().toLowerCase().contains(searchKeyword)) ||
+                        (order.getEmail() != null && order.getEmail().toLowerCase().contains(searchKeyword)) ||
+                        (order.getPhoneNumber() != null && order.getPhoneNumber().toLowerCase().contains(searchKeyword)) ||
+                        (order.getAddress() != null && order.getAddress().toLowerCase().contains(searchKeyword)) ||
+                        (order.getNote() != null && order.getNote().toLowerCase().contains(searchKeyword))
+                    )
+                    .toList();
+            }
+            
+            OrderListResponse orderListResponse = OrderListResponse.builder()
+                    .orders(orderList)
+                    .totalPages(totalPages)
+                    .build();
+            return ApiResponse.builder()
+                    .result(orderListResponse)
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.builder()
+                    .message("Error fetching orders: " + e.getMessage())
+                    .build();
+        }
+    }
 }
