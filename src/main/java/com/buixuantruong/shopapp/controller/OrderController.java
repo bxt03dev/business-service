@@ -85,24 +85,29 @@ public class OrderController {
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Object> getProduct(@RequestParam("page") int page, @RequestParam("limit") int limit) {
         try {
+            System.out.println("OrderController: get-user-orders called with page=" + page + ", limit=" + limit);
             PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
             Page<OrderResponse> orders = orderService.getAllUserOrders(pageRequest);
+            System.out.println("OrderController: Retrieved " + orders.getContent().size() + " orders from service");
             int totalPages = orders.getTotalPages();
             List<OrderResponse> orderList = orders.getContent();
             OrderListResponse orderListResponse = OrderListResponse.builder()
                     .orders(orderList)
                     .totalPages(totalPages)
                     .build();
+            System.out.println("OrderController: Returning " + orderList.size() + " orders to client");
             return ApiResponse.builder()
                     .result(orderListResponse)
                     .build();
         } catch (Exception e) {
+            System.err.println("OrderController: Error fetching orders: " + e.getMessage());
+            e.printStackTrace();
             return ApiResponse.builder()
                     .message("Error fetching orders: " + e.getMessage())
                     .build();
         }
     }
-    
+
     @GetMapping("/get-orders-by-keyword")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Object> getOrdersByKeyword(
@@ -116,12 +121,12 @@ public class OrderController {
             Page<OrderResponse> orders = orderService.getAllUserOrders(pageRequest);
             int totalPages = orders.getTotalPages();
             List<OrderResponse> orderList = orders.getContent();
-            
+
             // Filter orders on the server side if keyword is provided
             if (keyword != null && !keyword.trim().isEmpty()) {
                 String searchKeyword = keyword.toLowerCase();
                 orderList = orderList.stream()
-                    .filter(order -> 
+                    .filter(order ->
                         (order.getFullName() != null && order.getFullName().toLowerCase().contains(searchKeyword)) ||
                         (order.getEmail() != null && order.getEmail().toLowerCase().contains(searchKeyword)) ||
                         (order.getPhoneNumber() != null && order.getPhoneNumber().toLowerCase().contains(searchKeyword)) ||
@@ -130,7 +135,7 @@ public class OrderController {
                     )
                     .toList();
             }
-            
+
             OrderListResponse orderListResponse = OrderListResponse.builder()
                     .orders(orderList)
                     .totalPages(totalPages)
