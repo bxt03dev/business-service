@@ -137,8 +137,32 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new DataNotFoundException("Order not found"));
         User existingUser = userRepository.findById(orderDTO.getUserId())
                 .orElseThrow(() -> new DataNotFoundException("User not found"));
-        order = orderMapper.toOrder(orderDTO);
+                
+        // Update order fields from DTO instead of replacing the entire object
+        order.setFullName(orderDTO.getFullName());
+        order.setEmail(orderDTO.getEmail());
+        order.setPhoneNumber(orderDTO.getPhoneNumber());
+        order.setAddress(orderDTO.getAddress());
+        order.setNote(orderDTO.getNote());
+        
+        // Update status if it's present in the DTO
+        if (orderDTO.getStatus() != null && !orderDTO.getStatus().isEmpty()) {
+            order.setStatus(orderDTO.getStatus());
+        }
+        
+        order.setTotalMoney(orderDTO.getTotalMoney());
+        order.setShippingMethod(orderDTO.getShippingMethod());
+        if (orderDTO.getShippingAddress() != null) {
+            order.setShippingAddress(orderDTO.getShippingAddress());
+        }
+        order.setPaymentMethod(orderDTO.getPaymentMethod());
+        if (orderDTO.getShippingDate() != null) {
+            order.setShippingDate(orderDTO.getShippingDate());
+        }
+        
+        // Keep the existing user association
         order.setUser(existingUser);
+        
         return ApiResponse.builder()
                 .code(StatusCode.SUCCESS.getCode())
                 .message(StatusCode.SUCCESS.getMessage())

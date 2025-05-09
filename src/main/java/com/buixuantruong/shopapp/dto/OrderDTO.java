@@ -27,6 +27,7 @@ public class OrderDTO {
     String phoneNumber;
     String address;
     String note;
+    String status;
     @Min(value = 0, message = "total money must be > 0")
     Long totalMoney;
     String shippingMethod;
