@@ -33,27 +33,26 @@ public class OrderController {
     OrderService orderService;
 
     @PostMapping("")
-    public ApiResponse<Object> addOrder(@RequestBody @Valid OrderDTO orderDTO,
-                                BindingResult bindingResult) {
-
-        try{
-            if(bindingResult.hasErrors()){
-                List<String> errorMessage = bindingResult.getFieldErrors()
-                        .stream()
-                        .map(FieldError::getDefaultMessage)
-                        .toList();
-                return ApiResponse.builder()
-                        .message(String.join(", ", errorMessage))
-                        .build();
-            }
-            return ApiResponse.builder()
-                    .result(orderService.createOrder(orderDTO))
-                    .build();
-        }
-        catch(Exception e){
-            return ApiResponse.builder()
-                    .message(e.getMessage())
-                    .build();
+    public ResponseEntity<ApiResponse<Object>> createOrder(@Valid @RequestBody OrderDTO orderDTO) {
+        try {
+            System.out.println("OrderController - Creating order with data: " + orderDTO);
+            ApiResponse<Object> orderResponse = orderService.createOrder(orderDTO);
+            System.out.println("OrderController - Order created successfully. Response: " + orderResponse);
+            return ResponseEntity.ok(orderResponse);
+        } catch (DataNotFoundException e) {
+            return ResponseEntity.badRequest().body(
+                    ApiResponse.builder()
+                            .code(404)
+                            .message(e.getMessage())
+                            .build()
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(
+                    ApiResponse.builder()
+                            .code(400)
+                            .message(e.getMessage())
+                            .build()
+            );
         }
     }
 

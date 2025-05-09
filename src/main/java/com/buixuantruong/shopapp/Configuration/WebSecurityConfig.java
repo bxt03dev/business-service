@@ -63,6 +63,10 @@ public class WebSecurityConfig {
                             .requestMatchers(GET, "/api/v1/order_details/**").hasAnyRole(Role.USER, Role.ADMIN)
                             .requestMatchers(DELETE, "/api/v1/order_details/**").hasRole(Role.ADMIN)
                             .requestMatchers(POST, "/api/v1/order_details").hasRole(Role.USER)
+                            //payment
+                            .requestMatchers(POST, "/api/v1/payments/create").permitAll()
+                            .requestMatchers(GET, "/api/v1/payments/vnpay-payment-callback").permitAll()
+                            .requestMatchers(GET, "/api/v1/payments/orders/**").permitAll()
                             .anyRequest().authenticated();
                 })
                 .csrf((AbstractHttpConfigurer::disable));

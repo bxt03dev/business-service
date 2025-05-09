@@ -24,3 +24,8 @@ jwt:
 
 file:
   upload-dir: "F:/my workspace/Apple-shop/business-service/uploads"
+
+  vnpay:
+    tmn-code: YR1UQMDB
+    secret-key: 4U06X3RP8MGFZ4QSGA9LS2VOEHK8JGJA
+    vnp-url: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html

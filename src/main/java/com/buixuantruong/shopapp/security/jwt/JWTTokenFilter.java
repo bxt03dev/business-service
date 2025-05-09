@@ -77,12 +77,20 @@ public class JWTTokenFilter extends OncePerRequestFilter {
 //                Pair.of("/api/v1/orders", "GET"),
                 Pair.of("/api/v1/users/register", "POST"),
                 Pair.of("/api/v1/products/images", "GET"),
-                Pair.of("/api/v1/users/login", "POST"));
+                Pair.of("/api/v1/users/login", "POST"),
+                Pair.of("/api/v1/payments/create", "POST"),
+                Pair.of("/api/v1/payments/vnpay-payment-callback", "GET"),
+                Pair.of("/api/v1/payments/orders", "GET"));
 
         String requestPath = request.getServletPath();
         String requestMethod = request.getMethod();
 
         if(requestPath.equals("/api/v1/orders") && requestMethod.equals("GET")){
+            return true;
+        }
+        
+        // Kiểm tra đặc biệt cho API thanh toán
+        if(requestPath.startsWith("/api/v1/payments/")) {
             return true;
         }
 
