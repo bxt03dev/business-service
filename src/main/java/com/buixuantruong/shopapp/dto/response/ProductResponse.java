@@ -25,6 +25,8 @@ public class ProductResponse extends BaseResponse {
     String thumbnail;
     String description;
     Long categoryId;
+    Long quantity;
+    String warrantyCode;
     List<ProductImage> productImages = new ArrayList<>();
 
     public static ProductResponse from(Product product) {
@@ -36,6 +38,8 @@ public class ProductResponse extends BaseResponse {
                 .price(product.getPrice())
                 .categoryId(product.getCategory().getId())
                 .productImages(product.getProductImages())
+                .quantity(product.getQuantity())
+                .warrantyCode(product.getWarrantyCode())
                 .build();
         productResponse.setCreateAt(product.getCreateAt());
         productResponse.setUpdatedAt(product.getUpdatedAt());

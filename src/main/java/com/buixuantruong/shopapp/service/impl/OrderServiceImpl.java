@@ -1,16 +1,23 @@
 package com.buixuantruong.shopapp.service.impl;
 
+import com.buixuantruong.shopapp.dto.CartItemDTO;
+import com.buixuantruong.shopapp.dto.OrderDetailDTO;
 import com.buixuantruong.shopapp.dto.response.ApiResponse;
 import com.buixuantruong.shopapp.dto.OrderDTO;
 import com.buixuantruong.shopapp.dto.response.OrderResponse;
 import com.buixuantruong.shopapp.dto.response.ProductResponse;
 import com.buixuantruong.shopapp.exception.DataNotFoundException;
+import com.buixuantruong.shopapp.exception.InvalidParamException;
 import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.mapper.OrderMapper;
 import com.buixuantruong.shopapp.model.Order;
+import com.buixuantruong.shopapp.model.OrderDetail;
+import com.buixuantruong.shopapp.model.Product;
 import com.buixuantruong.shopapp.utils.fiels.OrderStatusField;
 import com.buixuantruong.shopapp.model.User;
+import com.buixuantruong.shopapp.repository.OrderDetailRepository;
 import com.buixuantruong.shopapp.repository.OrderRepository;
+import com.buixuantruong.shopapp.repository.ProductRepository;
 import com.buixuantruong.shopapp.repository.UserRepository;
 import com.buixuantruong.shopapp.service.OrderService;
 import jakarta.transaction.Transactional;
@@ -23,7 +30,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -34,11 +43,41 @@ public class OrderServiceImpl implements OrderService {
     UserRepository userRepository;
     OrderRepository orderRepository;
     OrderMapper orderMapper;
+    ProductRepository productRepository;
+    OrderDetailRepository orderDetailRepository;
 
     @Override
+    @Transactional
     public ApiResponse<Object> createOrder(OrderDTO orderDTO) throws DataNotFoundException {
         User user = userRepository.findById(orderDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Check if cartItems exist
+        if (orderDTO.getCartItems() == null || orderDTO.getCartItems().isEmpty()) {
+            throw new DataNotFoundException("Cart items cannot be empty");
+        }
+        
+        // Verify product quantities before creating the order
+        List<String> insufficientStockItems = new ArrayList<>();
+        for (CartItemDTO cartItem : orderDTO.getCartItems()) {
+            Product product = productRepository.findById(cartItem.getProductId())
+                    .orElseThrow(() -> new DataNotFoundException("Product not found with id: " + cartItem.getProductId()));
+            
+            // Check if there's enough quantity in stock
+            if (product.getQuantity() < cartItem.getQuantity()) {
+                insufficientStockItems.add(String.format("Product '%s' has only %d items in stock, but %d were requested", 
+                        product.getName(), product.getQuantity(), cartItem.getQuantity()));
+            }
+        }
+        
+        // If any product has insufficient stock, return error
+        if (!insufficientStockItems.isEmpty()) {
+            return ApiResponse.builder()
+                    .code(StatusCode.INVALID_DATA.getCode())
+                    .message("Insufficient stock for some products")
+                    .result(insufficientStockItems)
+                    .build();
+        }
 
         Order order = orderMapper.toOrder(orderDTO);
         order.setUser(user);
@@ -52,12 +91,35 @@ public class OrderServiceImpl implements OrderService {
 
         order.setShippingDate(shippingDate);
         order.setActive(true);
-        orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
+        
+        // Create order details and update product quantities
+        List<OrderDetail> orderDetails = new ArrayList<>();
+        for (CartItemDTO cartItem : orderDTO.getCartItems()) {
+            Product product = productRepository.findById(cartItem.getProductId())
+                    .orElseThrow(() -> new DataNotFoundException("Product not found with id: " + cartItem.getProductId()));
+            
+            OrderDetail orderDetail = OrderDetail.builder()
+                    .order(savedOrder)
+                    .product(product)
+                    .numberOfProducts(cartItem.getQuantity())
+                    .price(product.getPrice())
+                    .totalMoney((long) (product.getPrice() * cartItem.getQuantity()))
+                    .build();
+            
+            orderDetails.add(orderDetailRepository.save(orderDetail));
+            
+            // Update product quantity
+            product.setQuantity(product.getQuantity() - cartItem.getQuantity());
+            productRepository.save(product);
+        }
+        
+        savedOrder.setOrderDetails(orderDetails);
 
         return ApiResponse.builder()
                 .code(StatusCode.SUCCESS.getCode())
                 .message(StatusCode.SUCCESS.getMessage())
-                .result(order)
+                .result(savedOrder)
                 .build();
     }
 

@@ -25,4 +25,6 @@ public class ProductDTO {
     private String description;
     private Long categoryId;
     private List<MultipartFile> image;
+    @Min(value = 0, message = "quantity must be greater than or equal to 0")
+    private Long quantity;
 }

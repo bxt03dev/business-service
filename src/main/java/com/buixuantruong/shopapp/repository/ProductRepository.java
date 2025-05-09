@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     boolean existsByName(String name);
+    boolean existsByWarrantyCode(String warrantyCode);
     Page<Product> findAll(Pageable pageable);
 
     @Query("SELECT p FROM Product p WHERE p.id IN :productIds")

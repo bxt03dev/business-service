@@ -24,6 +24,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.security.SecureRandom;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @RequiredArgsConstructor
@@ -32,17 +36,47 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
     ProductRepository productRepository;
     CategoryRepository categoryRepository;
     ProductImageRepository productImageRepository;
+    
+    // Helper method to generate a unique warranty code
+    private String generateWarrantyCode() {
+        // Generate a unique code with 15 characters
+        // Format: WC-YYYYMMDD-XXXXX where XXXXX is a random alphanumeric string
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        String datePart = now.format(dateFormatter);
+        
+        // Generate 5 random characters
+        String alphanumeric = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(5);
+        for (int i = 0; i < 5; i++) {
+            sb.append(alphanumeric.charAt(random.nextInt(alphanumeric.length())));
+        }
+        
+        return "WC-" + datePart + "-" + sb.toString();
+    }
 
     @Override
     public ApiResponse<Object> createProduct(ProductDTO productDTO) throws DataNotFoundException {
         Category existingCategory = categoryRepository.findById(productDTO.getCategoryId())
                 .orElseThrow(() -> new DataNotFoundException("Category not found"));
+                
+        // Generate unique warranty code
+        String warrantyCode = generateWarrantyCode();
+        
+        // Check if warrantyCode already exists
+        while (productRepository.existsByWarrantyCode(warrantyCode)) {
+            warrantyCode = generateWarrantyCode();
+        }
+        
         Product newProduct = Product.builder()
                 .name(productDTO.getName())
                 .description(productDTO.getDescription())
                 .thumbnail(productDTO.getThumbnail())
                 .category(existingCategory)
                 .price(productDTO.getPrice())
+                .quantity(productDTO.getQuantity() != null ? productDTO.getQuantity() : 0L) // Set quantity, default to 0 if not provided
+                .warrantyCode(warrantyCode) // Set the warranty code
                 .build();
         return ApiResponse.builder()
                 .code(StatusCode.SUCCESS.getCode())
@@ -74,6 +108,12 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
             existingProduct.setThumbnail(productDTO.getThumbnail());
             existingProduct.setPrice(productDTO.getPrice());
             existingProduct.setCategory(existingCategory);
+            
+            // Update quantity if provided
+            if (productDTO.getQuantity() != null) {
+                existingProduct.setQuantity(productDTO.getQuantity());
+            }
+            
             return productRepository.save(existingProduct);
         }
         return null;
