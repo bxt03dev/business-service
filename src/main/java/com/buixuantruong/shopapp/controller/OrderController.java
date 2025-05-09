@@ -32,11 +32,6 @@ public class OrderController {
 
     OrderService orderService;
 
-    @GetMapping("")
-    public ResponseEntity<String> getOrders() {
-        return ResponseEntity.ok("Orders List");
-    }
-
     @PostMapping("")
     public ApiResponse<Object> addOrder(@RequestBody @Valid OrderDTO orderDTO,
                                 BindingResult bindingResult) {
@@ -87,17 +82,24 @@ public class OrderController {
     }
 
     @GetMapping("/get-user-orders")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Object> getProduct(@RequestParam("page") int page, @RequestParam("limit") int limit) {
-        PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
-        Page<OrderResponse> orders = orderService.getAllUserOrders(pageRequest);
-        int totalPages = orders.getTotalPages();
-        List<OrderResponse> orderList = orders.getContent();
-        OrderListResponse orderListResponse = OrderListResponse.builder()
-                .orders(orderList)
-                .totalPages(totalPages)
-                .build();
-        return ApiResponse.builder()
-                .result(orderListResponse)
-                .build();
+        try {
+            PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
+            Page<OrderResponse> orders = orderService.getAllUserOrders(pageRequest);
+            int totalPages = orders.getTotalPages();
+            List<OrderResponse> orderList = orders.getContent();
+            OrderListResponse orderListResponse = OrderListResponse.builder()
+                    .orders(orderList)
+                    .totalPages(totalPages)
+                    .build();
+            return ApiResponse.builder()
+                    .result(orderListResponse)
+                    .build();
+        } catch (Exception e) {
+            return ApiResponse.builder()
+                    .message("Error fetching orders: " + e.getMessage())
+                    .build();
+        }
     }
 }

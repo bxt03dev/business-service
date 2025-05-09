@@ -173,8 +173,32 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public Page<OrderResponse> getAllUserOrders(PageRequest pageRequest) {
-        return orderRepository.findAll(pageRequest).map(OrderResponse::fromOrder);
+        // Use findAll directly and map to OrderResponse to prevent unnecessary loading of User objects
+        return orderRepository.findAll(pageRequest).map(order -> {
+            // Create OrderResponse manually without loading user details
+            OrderResponse response = new OrderResponse();
+            response.setId(order.getId());
+            // Only set userId if user is not null
+            if (order.getUser() != null) {
+                response.setUserId(order.getUser().getId());
+            }
+            response.setFullName(order.getFullName());
+            response.setPhoneNumber(order.getPhoneNumber());
+            response.setEmail(order.getEmail());
+            response.setAddress(order.getAddress());
+            response.setNote(order.getNote());
+            response.setOrderDate(order.getOrderDate());
+            response.setStatus(order.getStatus());
+            response.setTotalMoney(order.getTotalMoney());
+            response.setShippingMethod(order.getShippingMethod());
+            response.setShippingAddress(order.getShippingAddress());
+            response.setShippingDate(order.getShippingDate());
+            response.setPaymentMethod(order.getPaymentMethod());
+            response.setOrderDetails(order.getOrderDetails());
+            return response;
+        });
     }
 
 }

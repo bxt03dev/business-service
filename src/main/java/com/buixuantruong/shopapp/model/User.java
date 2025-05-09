@@ -51,10 +51,33 @@ public class User extends BaseEntity implements UserDetails {
     @JoinColumn(name = "role_id")
     private Role role;
 
+    // Add a transient field to cache authorities
+    @Transient
+    private Collection<SimpleGrantedAuthority> cachedAuthorities;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Return cached authorities if available
+        if (cachedAuthorities != null) {
+            return cachedAuthorities;
+        }
+        
+        // Otherwise create new authorities
         List<SimpleGrantedAuthority> authorityList = new ArrayList<>();
-        authorityList.add(new SimpleGrantedAuthority("ROLE_" + getRole().getName().toUpperCase()));
+        try {
+            if (getRole() != null && getRole().getName() != null) {
+                authorityList.add(new SimpleGrantedAuthority("ROLE_" + getRole().getName().toUpperCase()));
+            } else {
+                // Default to USER role if no role is assigned
+                authorityList.add(new SimpleGrantedAuthority("ROLE_USER"));
+            }
+        } catch (Exception e) {
+            // If any error occurs, default to USER role
+            authorityList.add(new SimpleGrantedAuthority("ROLE_USER"));
+        }
+        
+        // Cache for future calls
+        this.cachedAuthorities = authorityList;
         return authorityList;
     }
 
