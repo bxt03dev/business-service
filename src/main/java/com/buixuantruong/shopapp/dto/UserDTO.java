@@ -24,8 +24,13 @@ public class UserDTO {
     String password;
     String retypePassword;
     Date dateOfBirth;
-    Long facebookAccountId;
-    Long googleAccountId;
+    String email;
+    
+    // Thông tin đăng nhập xã hội
+    String socialProvider; // GOOGLE hoặc FACEBOOK
+    String socialProviderId;
+    String avatarUrl;
+    
     @NotNull(message = "role id is required")
     Long roleId;
 }

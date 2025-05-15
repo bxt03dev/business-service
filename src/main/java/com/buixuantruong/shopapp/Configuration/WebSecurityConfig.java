@@ -41,6 +41,9 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(requests -> {
                     requests.requestMatchers("/api/v1/users/register").permitAll()
                             .requestMatchers("/api/v1/users/login").permitAll()
+                            .requestMatchers("/api/v1/auth/google/**").permitAll()
+                            .requestMatchers("/api/v1/auth/facebook/**").permitAll()
+                            .requestMatchers("/api/v1/auth/oauth2/callback/**").permitAll()
                             //category
                             .requestMatchers(GET, "/api/v1/categories?**").hasAnyRole(Role.USER, Role.ADMIN)
                             .requestMatchers(POST, "/api/v1/categories/**").hasRole(Role.ADMIN)

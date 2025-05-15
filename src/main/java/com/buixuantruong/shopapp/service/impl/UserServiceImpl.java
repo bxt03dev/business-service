@@ -8,8 +8,10 @@ import com.buixuantruong.shopapp.exception.ExpiredTokenException;
 import com.buixuantruong.shopapp.exception.PermissionException;
 import com.buixuantruong.shopapp.exception.StatusCode;
 import com.buixuantruong.shopapp.model.Role;
+import com.buixuantruong.shopapp.model.SocialAccount;
 import com.buixuantruong.shopapp.model.User;
 import com.buixuantruong.shopapp.repository.RoleRepository;
+import com.buixuantruong.shopapp.repository.SocialAccountRepository;
 import com.buixuantruong.shopapp.repository.UserRepository;
 import com.buixuantruong.shopapp.security.jwt.JWTTokenUtil;
 import jakarta.transaction.Transactional;
@@ -22,6 +24,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -30,10 +33,13 @@ import java.util.Optional;
 public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
+    SocialAccountRepository socialAccountRepository;
     PasswordEncoder passwordEncoder;
     JWTTokenUtil jwtTokenUtil;
     AuthenticationManager authenticationManager;
+    
     @Override
+    @Transactional
     public ApiResponse<Object> createUser(UserDTO userDTO) throws Exception{
         String phoneNumber = userDTO.getPhoneNumber();
         if(userRepository.existsByPhoneNumber(phoneNumber)) {
@@ -46,24 +52,41 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
         }
         User newUser = User.builder()
                 .fullName(userDTO.getFullName())
-                .password(userDTO.getPassword())
                 .phoneNumber(userDTO.getPhoneNumber())
                 .address(userDTO.getAddress())
                 .dateOfBirth(userDTO.getDateOfBirth())
-                .facebookAccountId(userDTO.getFacebookAccountId())
-                .googleAccountId(userDTO.getGoogleAccountId())
+                .email(userDTO.getEmail())
+                .avatarUrl(userDTO.getAvatarUrl())
+                .socialAccounts(new ArrayList<>())
                 .build();
         newUser.setRole(role);
 
-        if(userDTO.getFacebookAccountId() == 0 && userDTO.getGoogleAccountId() == 0){
+        boolean isSocialLogin = userDTO.getSocialProvider() != null && userDTO.getSocialProviderId() != null;
+        
+        if(!isSocialLogin) {
+            // Người dùng thông thường, mã hóa mật khẩu
             String password = userDTO.getPassword();
             String encodedPassword = passwordEncoder.encode(password);
             newUser.setPassword(encodedPassword);
+        } else {
+            // Người dùng đăng nhập xã hội
+            SocialAccount socialAccount = SocialAccount.builder()
+                    .provider(userDTO.getSocialProvider())
+                    .providerId(userDTO.getSocialProviderId())
+                    .email(userDTO.getEmail())
+                    .name(userDTO.getFullName())
+                    .pictureUrl(userDTO.getAvatarUrl())
+                    .build();
+            socialAccount.setUser(newUser);
+            newUser.getSocialAccounts().add(socialAccount);
         }
+        
+        User savedUser = userRepository.save(newUser);
+        
         return ApiResponse.builder()
                 .code(StatusCode.SUCCESS.getCode())
                 .message(StatusCode.SUCCESS.getMessage())
-                .result(userRepository.save(newUser))
+                .result(savedUser)
                 .build();
     }
 
@@ -75,7 +98,10 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
         }
         User existingUser = optionalUser.get();
 
-        if(existingUser.getFacebookAccountId() == 0 && existingUser.getGoogleAccountId() == 0){
+        // Kiểm tra nếu đây là tài khoản thông thường (không phải social login)
+        boolean isSocialUser = existingUser.getSocialAccounts() != null && !existingUser.getSocialAccounts().isEmpty();
+        
+        if(!isSocialUser){
             if(!passwordEncoder.matches(password, existingUser.getPassword())){
                 throw new DataNotFoundException("Invalid phone number or password");
             }
@@ -108,7 +134,7 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new DataNotFoundException("User not found"));
         String newPhoneNumber = updatedUserDTO.getPhoneNumber();
-        if (!existingUser.getPhoneNumber().equals(newPhoneNumber) &&
+        if (newPhoneNumber != null && !existingUser.getPhoneNumber().equals(newPhoneNumber) &&
                 userRepository.existsByPhoneNumber(newPhoneNumber)) {
             throw new DataIntegrityViolationException("Phone number already exists");
         }
@@ -125,15 +151,50 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
         if (updatedUserDTO.getDateOfBirth() != null) {
             existingUser.setDateOfBirth(updatedUserDTO.getDateOfBirth());
         }
-        if (updatedUserDTO.getFacebookAccountId() > 0) {
-            existingUser.setFacebookAccountId(updatedUserDTO.getFacebookAccountId());
+        if (updatedUserDTO.getEmail() != null) {
+            existingUser.setEmail(updatedUserDTO.getEmail());
         }
-        if (updatedUserDTO.getGoogleAccountId() > 0) {
-            existingUser.setGoogleAccountId(updatedUserDTO.getGoogleAccountId());
+        if (updatedUserDTO.getAvatarUrl() != null) {
+            existingUser.setAvatarUrl(updatedUserDTO.getAvatarUrl());
+        }
+        
+        // Xử lý cập nhật tài khoản xã hội nếu cần
+        if (updatedUserDTO.getSocialProvider() != null && updatedUserDTO.getSocialProviderId() != null) {
+            // Tìm tài khoản xã hội hiện có với provider tương tự
+            SocialAccount existingSocialAccount = existingUser.getSocialAccount(updatedUserDTO.getSocialProvider());
+            
+            if (existingSocialAccount != null) {
+                // Cập nhật tài khoản xã hội hiện có
+                existingSocialAccount.setProviderId(updatedUserDTO.getSocialProviderId());
+                if (updatedUserDTO.getEmail() != null) {
+                    existingSocialAccount.setEmail(updatedUserDTO.getEmail());
+                }
+                if (updatedUserDTO.getFullName() != null) {
+                    existingSocialAccount.setName(updatedUserDTO.getFullName());
+                }
+                if (updatedUserDTO.getAvatarUrl() != null) {
+                    existingSocialAccount.setPictureUrl(updatedUserDTO.getAvatarUrl());
+                }
+            } else {
+                // Tạo tài khoản xã hội mới
+                SocialAccount newSocialAccount = SocialAccount.builder()
+                        .provider(updatedUserDTO.getSocialProvider())
+                        .providerId(updatedUserDTO.getSocialProviderId())
+                        .email(updatedUserDTO.getEmail())
+                        .name(updatedUserDTO.getFullName())
+                        .pictureUrl(updatedUserDTO.getAvatarUrl())
+                        .user(existingUser)
+                        .build();
+                
+                if (existingUser.getSocialAccounts() == null) {
+                    existingUser.setSocialAccounts(new ArrayList<>());
+                }
+                existingUser.getSocialAccounts().add(newSocialAccount);
+            }
         }
 
-        if (updatedUserDTO.getPassword() != null
-                && !updatedUserDTO.getPassword().isEmpty()) {
+        // Cập nhật mật khẩu nếu được cung cấp
+        if (updatedUserDTO.getPassword() != null && !updatedUserDTO.getPassword().isEmpty()) {
             if (!updatedUserDTO.getPassword().equals(updatedUserDTO.getRetypePassword())) {
                 throw new DataNotFoundException("Password and retype password not the same");
             }
@@ -141,7 +202,7 @@ public class UserServiceImpl implements com.buixuantruong.shopapp.service.UserSe
             String encodedPassword = passwordEncoder.encode(newPassword);
             existingUser.setPassword(encodedPassword);
         }
+        
         return userRepository.save(existingUser);
     }
-
 }

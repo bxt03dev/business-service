@@ -41,11 +41,14 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "date_of_birth")
     private Date dateOfBirth;
 
-    @Column(name = "facebook_account_id")
-    private Long facebookAccountId;
+    @Column(name = "email", length = 150)
+    private String email;
 
-    @Column(name = "google_account_id")
-    private Long googleAccountId;
+    @Column(name = "avatar_url", length = 255)
+    private String avatarUrl;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<SocialAccount> socialAccounts;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
@@ -97,5 +100,32 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+    
+    // Helper methods for social login
+    public boolean hasSocialAccount(String provider) {
+        if (socialAccounts == null || socialAccounts.isEmpty()) {
+            return false;
+        }
+        return socialAccounts.stream()
+                .anyMatch(account -> account.getProvider().equals(provider));
+    }
+    
+    public SocialAccount getSocialAccount(String provider) {
+        if (socialAccounts == null || socialAccounts.isEmpty()) {
+            return null;
+        }
+        return socialAccounts.stream()
+                .filter(account -> account.getProvider().equals(provider))
+                .findFirst()
+                .orElse(null);
+    }
+    
+    public void addSocialAccount(SocialAccount socialAccount) {
+        if (socialAccounts == null) {
+            socialAccounts = new ArrayList<>();
+        }
+        socialAccounts.add(socialAccount);
+        socialAccount.setUser(this);
     }
 }

@@ -73,4 +73,8 @@ public class JWTTokenUtil {
         String phoneNumber = extractPhoneNumber(token);
         return (phoneNumber.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
+    
+    public Long getExpirationTime() {
+        return EXPIRE_TIME;
+    }
 }

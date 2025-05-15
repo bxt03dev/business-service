@@ -18,6 +18,10 @@ public class UpdateUserDTO {
     String password;
     String retypePassword;
     Date dateOfBirth;
-    Long facebookAccountId;
-    Long googleAccountId;
+    String email;
+    String avatarUrl;
+    
+    // Thông tin đăng nhập xã hội
+    String socialProvider; // GOOGLE hoặc FACEBOOK
+    String socialProviderId;
 }
