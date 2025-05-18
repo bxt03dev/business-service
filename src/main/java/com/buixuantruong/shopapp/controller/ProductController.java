@@ -147,9 +147,20 @@ public class ProductController {
     }
 
     @GetMapping("")
-    public ApiResponse<Object> getProduct(@RequestParam("page") int page, @RequestParam("limit") int limit) {
+    public ApiResponse<Object> getProduct(
+            @RequestParam("page") int page, 
+            @RequestParam("limit") int limit,
+            @RequestParam(value = "category_id", required = false) Long categoryId) {
+        
         PageRequest pageRequest = PageRequest.of(page, limit, Sort.by("id").ascending());
-        Page<ProductResponse> products = productService.getAllProducts(pageRequest);
+        Page<ProductResponse> products;
+        
+        if (categoryId != null) {
+            products = productService.getProductsByCategory(categoryId, pageRequest);
+        } else {
+            products = productService.getAllProducts(pageRequest);
+        }
+        
         int totalPages = products.getTotalPages();
         List<ProductResponse> productList = products.getContent();
         return ApiResponse.builder()

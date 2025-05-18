@@ -21,6 +21,8 @@ public interface ProductService {
 
     Page<ProductResponse> getAllProducts(PageRequest pageRequest);
 
+    Page<ProductResponse> getProductsByCategory(Long categoryId, PageRequest pageRequest);
+
     Product updateProduct(long id, ProductDTO productDTO) throws Exception;
 
     ApiResponse<Object> deleteProduct(long id);

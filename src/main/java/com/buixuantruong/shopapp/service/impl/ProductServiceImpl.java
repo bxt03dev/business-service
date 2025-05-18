@@ -97,6 +97,11 @@ public class ProductServiceImpl implements com.buixuantruong.shopapp.service.Pro
     }
 
     @Override
+    public Page<ProductResponse> getProductsByCategory(Long categoryId, PageRequest pageRequest) {
+        return productRepository.findByCategoryId(categoryId, pageRequest).map(ProductResponse::from);
+    }
+
+    @Override
     @Transactional
     public Product updateProduct(long id, ProductDTO productDTO) throws Exception {
         Product existingProduct = getProductById(id);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -26,7 +27,7 @@ public class Product extends BaseEntity {
     @Column(name = "thumbnail", length = 350)
     private String thumbnail;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "LONGTEXT")
     private String description;
 
     @Column(name = "quantity")
@@ -34,6 +35,12 @@ public class Product extends BaseEntity {
 
     @Column(name = "warranty_code")
     private String warrantyCode;
+
+    @Column(name = "date_release")
+    private Date dateRelease;
+
+    @Column(name = "is_on_sale")
+    private Boolean isOnSale;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
